@@ -4,8 +4,25 @@
     },
     "auth": {
         "login": "Masuk",
+        "register": "Daftar",
         "logout": "Keluar",
-        "failed": "Email atau kata sandi tidak valid."
+        "failed": "Email atau kata sandi tidak valid.",
+        "inactive": "Akun Anda belum aktif.",
+        "locked": "Akun Anda sedang dikunci sementara karena terlalu banyak percobaan gagal.",
+        "throttle": "Terlalu banyak percobaan login. Coba lagi beberapa menit lagi.",
+        "register_throttle": "Terlalu banyak percobaan registrasi. Coba lagi beberapa menit lagi.",
+        "register_failed": "Registrasi akun gagal. Periksa kembali data yang Anda masukkan.",
+        "register_success": "Akun berhasil dibuat dan Anda sudah masuk.",
+        "login_success": "Berhasil masuk ke Quenza CMS.",
+        "logout_success": "Anda berhasil keluar.",
+        "login_required": "Silakan masuk terlebih dahulu untuk mengakses dashboard.",
+        "validation": {
+            "full_name_required": "Nama lengkap wajib diisi.",
+            "email_invalid": "Alamat email tidak valid.",
+            "email_taken": "Alamat email sudah terdaftar.",
+            "password_min": "Password minimal 8 karakter.",
+            "password_confirmation": "Konfirmasi password tidak cocok."
+        }
     },
     "common": {
         "dashboard": "Dashboard",

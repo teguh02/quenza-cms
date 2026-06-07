@@ -2,6 +2,9 @@
 declare(strict_types=1);
 
 use Quenza\Core\Console\CommandKernel;
+use Quenza\Core\Auth\AuthManager;
+use Quenza\Core\Auth\RateLimiterService;
+use Quenza\Core\Auth\RegistrationService;
 use Quenza\Core\Database\Connection;
 use Quenza\Core\Database\DatabaseManager;
 use Quenza\Core\Database\MigrationRepository;
@@ -10,12 +13,16 @@ use Quenza\Core\Database\SeederRunner;
 use Quenza\Core\Database\Schema\SchemaManager;
 use Quenza\Core\Foundation\Application;
 use Quenza\Core\Foundation\Autoloader;
+use Quenza\Core\Http\HttpKernel;
+use Quenza\Core\Http\Router;
 use Quenza\Core\Packages\ManifestValidator;
 use Quenza\Core\Packages\PackageDefinition;
 use Quenza\Core\Packages\PackageDiscoverer;
 use Quenza\Core\Security\Security;
+use Quenza\Core\Session\SessionManager;
 use Quenza\Core\Support\Env;
 use Quenza\Core\Translation\Translator;
+use Quenza\Core\View\TwigRenderer;
 
 $basePath = dirname(__DIR__);
 
@@ -59,6 +66,8 @@ $app->singleton(SchemaManager::class, static fn (Application $application): Sche
 
 $app->singleton(Security::class, static fn (Application $application): Security => new Security($application));
 
+$app->singleton(SessionManager::class, static fn (Application $application): SessionManager => new SessionManager($application));
+
 $app->singleton(Translator::class, static fn (Application $application): Translator => new Translator(
     $application->basePath('quenza_core/lang'),
     (string) $application->config('app.locale', 'id'),
@@ -90,6 +99,39 @@ $app->singleton(SeederRunner::class, static fn (Application $application): Seede
     $application,
     $application->get(Connection::class),
     $application->get(PackageDiscoverer::class),
+));
+
+$app->singleton(RateLimiterService::class, static fn (Application $application): RateLimiterService => new RateLimiterService(
+    $application->get(DatabaseManager::class),
+));
+
+$app->singleton(AuthManager::class, static fn (Application $application): AuthManager => new AuthManager(
+    $application->get(DatabaseManager::class),
+    $application->get(SessionManager::class),
+    $application->get(Security::class),
+    $application->get(RateLimiterService::class),
+));
+
+$app->singleton(RegistrationService::class, static fn (Application $application): RegistrationService => new RegistrationService(
+    $application->get(DatabaseManager::class),
+    $application->get(Security::class),
+    $application->get(AuthManager::class),
+    $application->get(RateLimiterService::class),
+));
+
+$app->singleton(TwigRenderer::class, static fn (Application $application): TwigRenderer => new TwigRenderer(
+    $application,
+    $application->get(Security::class),
+    $application->get(SessionManager::class),
+    $application->get(AuthManager::class),
+));
+
+$app->singleton(Router::class, static fn (Application $application): Router => new Router());
+
+$app->singleton(HttpKernel::class, static fn (Application $application): HttpKernel => new HttpKernel(
+    $application,
+    $application->get(Router::class),
+    $application->get(SessionManager::class),
 ));
 
 $app->singleton(CommandKernel::class, static fn (Application $application): CommandKernel => new CommandKernel($application));

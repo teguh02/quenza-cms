@@ -4,8 +4,25 @@
     },
     "auth": {
         "login": "Login",
+        "register": "Register",
         "logout": "Logout",
-        "failed": "The email or password is invalid."
+        "failed": "The email or password is invalid.",
+        "inactive": "Your account is not active.",
+        "locked": "Your account is temporarily locked after too many failed attempts.",
+        "throttle": "Too many login attempts. Please try again in a few minutes.",
+        "register_throttle": "Too many registration attempts. Please try again in a few minutes.",
+        "register_failed": "Account registration failed. Please review your input.",
+        "register_success": "Account created successfully and you are now signed in.",
+        "login_success": "Signed in to Quenza CMS successfully.",
+        "logout_success": "You have been signed out.",
+        "login_required": "Please sign in first to access the dashboard.",
+        "validation": {
+            "full_name_required": "Full name is required.",
+            "email_invalid": "The email address is invalid.",
+            "email_taken": "The email address is already registered.",
+            "password_min": "Password must be at least 8 characters.",
+            "password_confirmation": "Password confirmation does not match."
+        }
     },
     "common": {
         "dashboard": "Dashboard",

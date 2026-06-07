@@ -18,5 +18,27 @@
         "files": [
             "quenza_core/src/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "serve": "php -S 127.0.0.1:8000 -t public",
+        "db:migrate": "php bin/qz migrate --seed",
+        "db:fresh": "php bin/qz migrate:fresh --seed",
+        "db:status": "php bin/qz migrate:status",
+        "smoke": "php bin/manual-smoke.php",
+        "test": "php vendor/bin/phpunit --testdox",
+        "test:unit": "php vendor/bin/phpunit --testsuite Unit --testdox",
+        "test:integration": "php vendor/bin/phpunit --testsuite Integration --testdox",
+        "test:ci": [
+            "@smoke",
+            "@test"
+        ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.2"
     }
 }

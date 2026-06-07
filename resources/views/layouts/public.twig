@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="{{ config_locale|default('id') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title|default(app_name) }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-50 font-sans text-slate-900">
+    {% if status_message %}
+        <div class="mx-auto max-w-6xl px-6 pt-6">
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out">
+                {{ status_message }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</body>
+</html>
