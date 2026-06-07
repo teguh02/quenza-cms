@@ -1,0 +1,22 @@
+{
+    "name": "quenza/cms",
+    "description": "Security-first modular CMS engine for the Quenza ecosystem.",
+    "type": "project",
+    "require": {
+        "php": "^8.5",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ezyang/htmlpurifier": "^4.18",
+        "twig/twig": "^3.21"
+    },
+    "autoload": {
+        "psr-4": {
+            "Quenza\\Core\\": "quenza_core/src/",
+            "Database\\Migrations\\": "database/migrations/",
+            "Database\\Seeders\\": "database/seeders/"
+        },
+        "files": [
+            "quenza_core/src/helpers.php"
+        ]
+    }
+}

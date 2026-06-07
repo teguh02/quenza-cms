@@ -1,0 +1,20 @@
+{
+    "app": {
+        "name": "Quenza CMS"
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "failed": "The email or password is invalid."
+    },
+    "common": {
+        "dashboard": "Dashboard",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete"
+    },
+    "database": {
+        "migration_completed": "Migration completed.",
+        "seed_completed": "Seeder execution completed."
+    }
+}

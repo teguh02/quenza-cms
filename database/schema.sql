@@ -1,0 +1,12 @@
+-- Quenza CMS schema snapshot deprecated.
+-- Source of truth skema database sekarang adalah file migration di database/migrations/
+-- yang wajib menggunakan schema()/Blueprint dari core Quenza CMS.
+--
+-- Jalankan salah satu perintah berikut untuk membangun skema sesuai driver aktif:
+--   php bin/qz migrate
+--   php bin/qz migrate --seed
+--   php bin/qz migrate:fresh --seed
+--
+-- Driver yang didukung hanya:
+--   - mysql
+--   - sqlite

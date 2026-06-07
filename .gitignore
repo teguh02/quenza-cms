@@ -1,0 +1,15 @@
+/vendor/
+/.env
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/cache/*
+!/storage/cache/.gitignore
+!/storage/cache/htmlpurifier/
+/storage/cache/htmlpurifier/*
+!/storage/cache/htmlpurifier/.gitignore
+/storage/database/*
+!/storage/database/.gitignore
+/storage/uploads/*
+!/storage/uploads/.gitignore
+!/storage/uploads/.htaccess
+!/storage/uploads/web.config
