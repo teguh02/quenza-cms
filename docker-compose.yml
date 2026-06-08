@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ${APP_CONTAINER_NAME:-quenza-app}
+    container_name: ${APP_CONTAINER_NAME:-quenza-cms-app}
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8080}:80"
@@ -38,7 +38,7 @@ services:
       QZ_ADMIN_PASSWORD: ${QZ_ADMIN_PASSWORD:-}
     volumes:
       - ./:/var/www/html
-      - quenza_vendor:/var/www/html/vendor
+      - quenza_cms_vendor:/var/www/html/vendor
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/ >/dev/null || exit 1"]
       interval: 15s
@@ -46,13 +46,13 @@ services:
       retries: 5
       start_period: 30s
     networks:
-      - quenza_network
+      - quenza_cms_network
 
   db:
     image: mysql:8.4
     profiles:
       - mysql
-    container_name: ${DB_CONTAINER_NAME:-quenza-db}
+    container_name: ${DB_CONTAINER_NAME:-quenza-cms-db}
     restart: unless-stopped
     ports:
       - "${DB_FORWARD_PORT:-3306}:3306"
@@ -69,7 +69,7 @@ services:
       - --default-time-zone=+07:00
       - --sql-mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
     volumes:
-      - quenza_db_data:/var/lib/mysql
+      - quenza_cms_db_data:/var/lib/mysql
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 10s
@@ -77,12 +77,12 @@ services:
       retries: 10
       start_period: 30s
     networks:
-      - quenza_network
+      - quenza_cms_network
 
 volumes:
-  quenza_db_data:
-  quenza_vendor:
+  quenza_cms_db_data:
+  quenza_cms_vendor:
 
 networks:
-  quenza_network:
+  quenza_cms_network:
     driver: bridge
