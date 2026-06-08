@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use Quenza\Core\Database\Seeder;
 use Quenza\Core\Enums\UserStatus;
 use Quenza\Core\Security\Security;
+use Quenza\Core\Support\Str;
 use Quenza\Core\Support\Env;
 use DateTimeImmutable;
 use RuntimeException;
@@ -50,11 +51,13 @@ final class AdminUserSeeder extends Seeder
 
     private function upsertAdminUser(string $fullName, string $email, string $passwordHash): int
     {
+        $username = $this->generateUsername($fullName, $email);
         $user = $this->db()->table('users')->where('email', $email)->first();
         $userId = $user['id'] ?? null;
 
         if (is_numeric($userId)) {
             $this->db()->update('users', [
+                'username' => $username,
                 'full_name' => $fullName,
                 'password_hash' => $passwordHash,
                 'locale' => (string) $this->app->config('app.locale', 'id'),
@@ -70,11 +73,32 @@ final class AdminUserSeeder extends Seeder
         }
 
         return $this->db()->insertGetId('users', [
+            'username' => $username,
             'full_name' => $fullName,
             'email' => $email,
             'password_hash' => $passwordHash,
             'locale' => (string) $this->app->config('app.locale', 'id'),
             'status' => UserStatus::Active->value,
         ]);
+    }
+
+    private function generateUsername(string $fullName, string $email): string
+    {
+        $seed = $fullName !== '' ? $fullName : (strstr($email, '@', true) ?: 'admin');
+        $base = substr(Str::slug($seed, '_'), 0, 40);
+
+        if ($base === '') {
+            $base = 'admin';
+        }
+
+        $candidate = $base;
+        $suffix = 1;
+
+        while ($this->db()->table('users')->where('username', $candidate)->where('email', '!=', $email)->exists()) {
+            $suffix++;
+            $candidate = substr($base, 0, max(1, 40 - strlen((string) $suffix) - 1)) . '_' . $suffix;
+        }
+
+        return $candidate;
     }
 }

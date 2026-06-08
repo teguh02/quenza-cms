@@ -28,10 +28,49 @@
         "dashboard": "Dashboard",
         "save": "Simpan",
         "cancel": "Batal",
-        "delete": "Hapus"
+        "delete": "Hapus",
+        "back": "Kembali"
     },
     "database": {
         "migration_completed": "Migrasi selesai.",
         "seed_completed": "Seeder selesai dijalankan."
+    },
+    "install": {
+        "title": "Instalasi Quenza CMS",
+        "language": {
+            "heading": "Pilih bahasa instalasi",
+            "description": "Tentukan bahasa utama yang akan digunakan selama proses instalasi awal Quenza CMS."
+        },
+        "database": {
+            "title": "Setup Database",
+            "heading": "Hubungkan Quenza CMS ke database",
+            "description": "Default instalasi menggunakan SQLite, tetapi Anda juga dapat menggunakan MySQL jika sudah menyiapkan server database sendiri.",
+            "submit": "Submit dan Validasi Koneksi",
+            "failed": "Validasi koneksi database gagal.",
+            "success": "Koneksi database berhasil divalidasi.",
+            "required": "Konfigurasi database harus diselesaikan sebelum instalasi dilanjutkan."
+        },
+        "site": {
+            "title": "Informasi Situs & Admin",
+            "heading": "Lengkapi informasi situs dan akun admin",
+            "description": "Data ini akan digunakan untuk membuat konfigurasi awal, akun administrator, dan konten dummy pertama Anda.",
+            "site_title": "Site Title",
+            "admin_username": "Admin Username",
+            "admin_email": "Admin Email",
+            "admin_password": "Admin Password",
+            "password_help": "Gunakan password kuat minimal 10 karakter dengan kombinasi huruf besar, huruf kecil, angka, dan simbol.",
+            "submit": "Install Quenza CMS",
+            "failed": "Informasi situs atau admin belum valid."
+        },
+        "process": {
+            "failed": "Proses instalasi gagal."
+        },
+        "success": {
+            "title": "Installation Successful",
+            "heading": "Installation Successful!",
+            "description": "Quenza CMS berhasil diinstal dan langsung di-seed dengan konten awal untuk situs",
+            "login": "Log In",
+            "visit_site": "Lihat Situs"
+        }
     }
 }

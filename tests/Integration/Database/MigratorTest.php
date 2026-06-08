@@ -16,7 +16,7 @@ final class MigratorTest extends DatabaseTestCase
         $status = $migrator->status();
 
         self::assertNotEmpty($status);
-        self::assertCount(9, $status);
+        self::assertCount(12, $status);
 
         foreach ($status as $row) {
             self::assertSame('Ran', $row['status']);

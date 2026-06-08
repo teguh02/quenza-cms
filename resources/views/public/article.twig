@@ -10,7 +10,7 @@
             <p class="mt-6 text-base leading-8 text-slate-500">{{ post.meta_description }}</p>
         {% endif %}
         <div class="prose prose-slate mt-8 max-w-none text-slate-700">
-            {{ post.content ?: 'Konten artikel belum diisi.' }}
+            {{ (post.content ?: 'Konten artikel belum diisi.')|raw }}
         </div>
     </article>
 </div>

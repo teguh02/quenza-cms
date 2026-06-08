@@ -5,6 +5,8 @@ use Quenza\Core\Console\CommandKernel;
 use Quenza\Core\Auth\AuthManager;
 use Quenza\Core\Auth\RateLimiterService;
 use Quenza\Core\Auth\RegistrationService;
+use Quenza\Core\Cms\ActivityLogService;
+use Quenza\Core\Cms\OptionService;
 use Quenza\Core\Database\Connection;
 use Quenza\Core\Database\DatabaseManager;
 use Quenza\Core\Database\MigrationRepository;
@@ -15,6 +17,8 @@ use Quenza\Core\Foundation\Application;
 use Quenza\Core\Foundation\Autoloader;
 use Quenza\Core\Http\HttpKernel;
 use Quenza\Core\Http\Router;
+use Quenza\Core\Install\InstallationState;
+use Quenza\Core\Install\InstallerService;
 use Quenza\Core\Packages\ManifestValidator;
 use Quenza\Core\Packages\PackageDefinition;
 use Quenza\Core\Packages\PackageDiscoverer;
@@ -36,7 +40,10 @@ require_once $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARAT
 require_once $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Foundation' . DIRECTORY_SEPARATOR . 'Application.php';
 require_once $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'helpers.php';
 
-Env::load($basePath . DIRECTORY_SEPARATOR . '.env');
+Env::load(
+    $basePath . DIRECTORY_SEPARATOR . '.env',
+    overrideExisting: (string) (getenv('APP_ENV') ?: ($_ENV['APP_ENV'] ?? '')) !== 'testing',
+);
 
 $autoloader = new Autoloader();
 $autoloader->addNamespace('Quenza\\Core\\', $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'src');
@@ -62,6 +69,14 @@ $app->singleton(DatabaseManager::class, static fn (Application $application): Da
 
 $app->singleton(SchemaManager::class, static fn (Application $application): SchemaManager => new SchemaManager(
     $application->get(Connection::class),
+));
+
+$app->singleton(OptionService::class, static fn (Application $application): OptionService => new OptionService(
+    $application->get(DatabaseManager::class),
+));
+
+$app->singleton(ActivityLogService::class, static fn (Application $application): ActivityLogService => new ActivityLogService(
+    $application->get(DatabaseManager::class),
 ));
 
 $app->singleton(Security::class, static fn (Application $application): Security => new Security($application));
@@ -119,11 +134,25 @@ $app->singleton(RegistrationService::class, static fn (Application $application)
     $application->get(RateLimiterService::class),
 ));
 
+$app->singleton(InstallationState::class, static fn (Application $application): InstallationState => new InstallationState(
+    $application,
+    $application->get(Connection::class),
+    $application->get(OptionService::class),
+    $application->get(SessionManager::class),
+));
+
+$app->singleton(InstallerService::class, static fn (Application $application): InstallerService => new InstallerService(
+    $application,
+    $application->get(Security::class),
+    $application->get(SessionManager::class),
+));
+
 $app->singleton(TwigRenderer::class, static fn (Application $application): TwigRenderer => new TwigRenderer(
     $application,
     $application->get(Security::class),
     $application->get(SessionManager::class),
     $application->get(AuthManager::class),
+    $application->get(Translator::class),
 ));
 
 $app->singleton(Router::class, static fn (Application $application): Router => new Router());

@@ -17,7 +17,7 @@ services:
       APP_FALLBACK_LOCALE: ${APP_FALLBACK_LOCALE:-en}
       SESSION_NAME: ${SESSION_NAME:-QUENZASESSID}
       DB_DRIVER: ${DB_DRIVER:-sqlite}
-      DB_SQLITE_PATH: ${DB_SQLITE_PATH:-/var/www/html/storage/database/quenza.sqlite}
+      DB_SQLITE_PATH: ${DB_SQLITE_PATH:-/var/www/html/storage/database/quenza.db}
       DB_HOST: ${DB_HOST:-db}
       DB_PORT: ${DB_PORT:-3306}
       DB_DATABASE: ${DB_DATABASE:-quenza_cms}
@@ -25,7 +25,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-quenza_secret}
       DB_CHARSET: ${DB_CHARSET:-utf8mb4}
       DB_PREFIX: ${DB_PREFIX:-qz_}
-      QZ_ACTIVE_THEME: ${QZ_ACTIVE_THEME:-default}
+      QZ_ACTIVE_THEME: ${QZ_ACTIVE_THEME:-quenza_default}
       QZ_ADMIN_NAME: ${QZ_ADMIN_NAME:-}
       QZ_ADMIN_EMAIL: ${QZ_ADMIN_EMAIL:-}
       QZ_ADMIN_PASSWORD: ${QZ_ADMIN_PASSWORD:-}

@@ -33,6 +33,7 @@ final class DatabaseManagerTest extends DatabaseTestCase
     public function test_insert_or_ignore_does_not_duplicate_role_assignment(): void
     {
         $userId = $this->database()->insertGetId('users', [
+            'username' => 'pivot_tester',
             'full_name' => 'Pivot Tester',
             'email' => 'pivot@example.com',
             'password_hash' => '$2y$10$placeholderplaceholderplaceholderplaceholderplaceholderpl',

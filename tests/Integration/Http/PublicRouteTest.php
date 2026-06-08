@@ -21,7 +21,7 @@ final class PublicRouteTest extends DatabaseTestCase
         $response = $this->client->get('/');
 
         self::assertSame(200, $response->status());
-        self::assertStringContainsString('Fondasi Quenza CMS', $response->content());
+        self::assertStringContainsString('Blog Quenza CMS langsung siap menampilkan artikel', $response->content());
     }
 
     public function test_article_route_renders_published_article_by_slug(): void

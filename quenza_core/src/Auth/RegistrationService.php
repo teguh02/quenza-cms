@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use Quenza\Core\Database\DatabaseManager;
 use Quenza\Core\Enums\UserStatus;
 use Quenza\Core\Security\Security;
+use Quenza\Core\Support\Str;
 
 final class RegistrationService
 {
@@ -57,7 +58,9 @@ final class RegistrationService
         }
 
         $now = (new DateTimeImmutable())->format('Y-m-d H:i:s');
+        $username = $this->generateUniqueUsername($normalizedName, $sanitizedEmail ?? $normalizedEmail);
         $userId = $this->database->insertGetId('users', [
+            'username' => $username,
             'full_name' => $normalizedName,
             'email' => $sanitizedEmail,
             'password_hash' => $this->security->hashPassword($password),
@@ -81,5 +84,25 @@ final class RegistrationService
         $this->auth->loginById($userId);
 
         return AuthResult::success(trans('auth.register_success'));
+    }
+
+    private function generateUniqueUsername(string $fullName, string $email): string
+    {
+        $seed = $fullName !== '' ? $fullName : ((strstr($email, '@', true)) ?: 'user');
+        $base = substr(Str::slug($seed, '_'), 0, 40);
+
+        if ($base === '') {
+            $base = 'user';
+        }
+
+        $candidate = $base;
+        $suffix = 1;
+
+        while ($this->database->table('users')->where('username', $candidate)->exists()) {
+            $suffix++;
+            $candidate = substr($base, 0, max(1, 40 - strlen((string) $suffix) - 1)) . '_' . $suffix;
+        }
+
+        return $candidate;
     }
 }

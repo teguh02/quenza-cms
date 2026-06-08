@@ -109,4 +109,4 @@ RUN set -eux; \
 
 EXPOSE 80
 
-CMD ["sh", "-lc", "mkdir -p storage/cache/htmlpurifier storage/database storage/logs storage/uploads && touch storage/database/quenza.sqlite && chown -R www-data:www-data storage bootstrap public quenza_core database config bin && if [ ! -f vendor/autoload.php ]; then composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader; fi && apache2-foreground"]
+CMD ["sh", "-lc", "mkdir -p storage/cache/htmlpurifier storage/database storage/logs storage/uploads && touch storage/database/quenza.db && chown -R www-data:www-data storage bootstrap public quenza_core database config bin && if [ ! -f vendor/autoload.php ]; then composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader; fi && apache2-foreground"]

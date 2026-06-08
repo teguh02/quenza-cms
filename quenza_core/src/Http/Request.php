@@ -158,6 +158,23 @@ final class Request
         return $this->server[$serverKey] ?? $default;
     }
 
+    public function host(): string
+    {
+        return (string) ($this->server['HTTP_HOST'] ?? 'localhost');
+    }
+
+    public function scheme(): string
+    {
+        $https = (string) ($this->server['HTTPS'] ?? '');
+
+        return $https !== '' && strtolower($https) !== 'off' ? 'https' : 'http';
+    }
+
+    public function baseUrl(): string
+    {
+        return $this->scheme() . '://' . $this->host();
+    }
+
     /**
      * @return array<string, mixed>
      */

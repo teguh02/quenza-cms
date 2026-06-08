@@ -1,0 +1,22 @@
+{
+    "slug": "quenza_default",
+    "name": "Quenza Default",
+    "version": "0.1.0",
+    "namespace": "QuenzaDefault\\",
+    "paths": {
+        "src": "src"
+    },
+    "features": {
+        "blog": true,
+        "search": true,
+        "categories": true,
+        "recent_posts": true
+    },
+    "palette": {
+        "background": "#F5F7FA",
+        "surface": "#FFFFFF",
+        "border": "#E5E9F2",
+        "accent_start": "#22C55E",
+        "accent_end": "#14B8A6"
+    }
+}

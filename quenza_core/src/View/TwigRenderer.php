@@ -7,6 +7,7 @@ use Quenza\Core\Auth\AuthManager;
 use Quenza\Core\Foundation\Application;
 use Quenza\Core\Security\Security;
 use Quenza\Core\Session\SessionManager;
+use Quenza\Core\Translation\Translator;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\Markup;
@@ -21,6 +22,7 @@ final class TwigRenderer
         private readonly Security $security,
         private readonly SessionManager $session,
         private readonly AuthManager $auth,
+        private readonly Translator $translator,
     ) {
         $loader = new FilesystemLoader($this->app->basePath('resources/views'));
 
@@ -41,6 +43,7 @@ final class TwigRenderer
         return $this->twig->render($template, [
             'app_name' => (string) $this->app->config('app.name', 'Quenza CMS'),
             'app_url' => (string) $this->app->config('app.url', 'http://localhost'),
+            'config_locale' => $this->translator->locale(),
             'status_message' => $this->session->get('status'),
             'errors' => $this->session->errors(),
             ...$context,

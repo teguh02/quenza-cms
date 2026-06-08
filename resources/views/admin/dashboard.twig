@@ -16,75 +16,74 @@
 
     <div class="relative max-w-3xl">
         <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">{{ trans('common.dashboard') }}</p>
-        <h1 class="mt-3 text-3xl font-extrabold leading-tight text-slate-900 md:text-4xl">Halo, {{ user.full_name ?? 'Pengguna Quenza' }}.</h1>
-        <p class="mt-4 max-w-2xl text-sm leading-8 text-slate-500 md:text-base">Dashboard awal ini menjadi pusat kontrol Quenza CMS untuk autentikasi publik, artikel, media, dan modul-modul ekosistem berikutnya.</p>
-        <div class="mt-6 flex flex-wrap gap-3">
-            {% for role in role_slugs %}
-                <span class="rounded-full border border-emerald-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">{{ role }}</span>
-            {% else %}
-                <span class="rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">subscriber</span>
-            {% endfor %}
-        </div>
+        <h1 class="mt-3 text-3xl font-extrabold leading-tight text-slate-900 md:text-4xl">{{ site_title }}</h1>
+        <p class="mt-4 max-w-2xl text-sm leading-8 text-slate-500 md:text-base">Dashboard ini langsung menampilkan ringkasan konten, quick draft, dan aktivitas terakhir agar Quenza CMS terasa seperti CMS siap pakai begitu instalasi selesai.</p>
     </div>
 </section>
 
 <section class="mt-8 grid gap-6 xl:grid-cols-4 md:grid-cols-2">
-    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
-        <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DBEAFE] text-slate-700">U</div>
-        <p class="mt-5 text-sm text-slate-400">Total Pengguna</p>
-        <h2 class="mt-2 text-3xl font-extrabold text-slate-900">{{ stats.users }}</h2>
-    </article>
-    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
-        <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DCFCE7] text-slate-700">P</div>
-        <p class="mt-5 text-sm text-slate-400">Artikel Terbit</p>
-        <h2 class="mt-2 text-3xl font-extrabold text-slate-900">{{ stats.published_posts }}</h2>
-    </article>
-    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
-        <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FEF3C7] text-slate-700">D</div>
-        <p class="mt-5 text-sm text-slate-400">Draft Konten</p>
-        <h2 class="mt-2 text-3xl font-extrabold text-slate-900">{{ stats.draft_posts }}</h2>
-    </article>
-    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
-        <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F3E8FF] text-slate-700">M</div>
-        <p class="mt-5 text-sm text-slate-400">Menu Terdaftar</p>
-        <h2 class="mt-2 text-3xl font-extrabold text-slate-900">{{ stats.menus }}</h2>
-    </article>
+    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]"><div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DBEAFE] text-slate-700">P</div><p class="mt-5 text-sm text-slate-400">Posts</p><h2 class="mt-2 text-3xl font-extrabold text-slate-900">{{ stats.posts }}</h2></article>
+    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]"><div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DCFCE7] text-slate-700">G</div><p class="mt-5 text-sm text-slate-400">Pages</p><h2 class="mt-2 text-3xl font-extrabold text-slate-900">{{ stats.pages }}</h2></article>
+    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]"><div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FEF3C7] text-slate-700">C</div><p class="mt-5 text-sm text-slate-400">Categories</p><h2 class="mt-2 text-3xl font-extrabold text-slate-900">{{ stats.categories }}</h2></article>
+    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]"><div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F3E8FF] text-slate-700">M</div><p class="mt-5 text-sm text-slate-400">Media</p><h2 class="mt-2 text-3xl font-extrabold text-slate-900">{{ stats.media }}</h2></article>
 </section>
 
-<section class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+<section class="mt-8 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
     <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
-        <div class="flex items-center justify-between gap-4">
-            <div>
-                <h2 class="text-xl font-bold text-slate-900">Aktivitas Konten</h2>
-                <p class="mt-1 text-sm text-slate-500">Posting terbaru yang sudah masuk ke basis data Quenza CMS.</p>
-            </div>
+        <h2 class="text-xl font-bold text-slate-900">At a Glance</h2>
+        <div class="mt-6 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5"><p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Posts</p><p class="mt-3 text-3xl font-extrabold text-slate-900">{{ stats.posts }}</p></div>
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5"><p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Pages</p><p class="mt-3 text-3xl font-extrabold text-slate-900">{{ stats.pages }}</p></div>
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5"><p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Categories</p><p class="mt-3 text-3xl font-extrabold text-slate-900">{{ stats.categories }}</p></div>
         </div>
 
-        {% if recent_posts is not empty %}
-            <div class="mt-6 space-y-4">
-                {% for post in recent_posts %}
-                    <div class="flex items-start justify-between gap-4 rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ post.post_type }} · {{ post.status }}</p>
-                            <p class="mt-2 text-sm font-semibold text-slate-900">{{ post.title }}</p>
-                            <p class="mt-1 text-xs text-slate-500">Slug: {{ post.slug }}</p>
+        <h2 class="mt-8 text-xl font-bold text-slate-900">Quick Draft</h2>
+        <form method="post" action="/admin/quick-draft" class="mt-5 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            {{ csrf_field() }}
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Judul Artikel</label>
+                <input type="text" name="title" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400" placeholder="Tulis judul draft..." required>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Konten Singkat</label>
+                <textarea name="content" rows="5" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400" placeholder="Tulis isi draft cepat..." ></textarea>
+            </div>
+            <button type="submit" class="rounded-2xl bg-gradient-to-r from-[#22C55E] to-[#14B8A6] px-5 py-3 text-sm font-semibold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out hover:scale-[1.01]">Simpan Quick Draft</button>
+        </form>
+    </article>
+
+    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+        <h2 class="text-xl font-bold text-slate-900">Recent Activity</h2>
+        {% if recent_activity is not empty %}
+            <div class="mt-5 space-y-4">
+                {% for item in recent_activity %}
+                    <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
+                        <p class="text-sm font-semibold text-slate-900">{{ item.description }}</p>
+                        <div class="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                            <span>{{ item.action }}</span>
+                            <span>{{ item.actor_name ?: 'System' }}</span>
+                            <span>{{ item.created_at }}</span>
                         </div>
-                        <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-500">{{ post.status }}</span>
                     </div>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="mt-6 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-sm text-slate-500">Belum ada konten. Pada Tahap 4, daftar ini akan terisi dari CRUD artikel dan halaman.</div>
+            <div class="mt-5 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-sm text-slate-500">Belum ada log aktivitas.</div>
         {% endif %}
-    </article>
 
-    <article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
-        <h2 class="text-xl font-bold text-slate-900">Checklist Manual</h2>
-        <div class="mt-5 space-y-4 text-sm leading-7 text-slate-500">
-            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">1. Jalankan `php -S 127.0.0.1:8000 -t public`.</div>
-            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">2. Uji registrasi publik dan login via `curl` dengan cookie jar.</div>
-            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">3. Verifikasi `qz_users`, `qz_user_roles`, dan `qz_auth_attempts` lewat SQLite.</div>
-            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">4. Setelah Tahap 4, verifikasi slug artikel publik dari route `/articles/{slug}`.</div>
+        <h2 class="mt-8 text-xl font-bold text-slate-900">Recent Posts</h2>
+        <div class="mt-5 space-y-3">
+            {% for post in recent_posts %}
+                <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
+                    <p class="text-sm font-semibold text-slate-900">{{ post.title }}</p>
+                    <div class="mt-2 flex items-center justify-between gap-4 text-xs text-slate-400">
+                        <span>{{ post.post_type }} · {{ post.status }}</span>
+                        <span>{{ post.created_at }}</span>
+                    </div>
+                </div>
+            {% else %}
+                <div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-sm text-slate-500">Belum ada posting terbaru.</div>
+            {% endfor %}
         </div>
     </article>
 </section>

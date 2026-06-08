@@ -31,6 +31,20 @@ final class Security
         return $token;
     }
 
+    public function csrfToken(string $tokenId = 'default'): string
+    {
+        $this->ensureSessionStarted();
+        $this->purgeExpiredTokens();
+
+        $storedToken = $_SESSION[self::CSRF_SESSION_KEY][$tokenId] ?? null;
+
+        if (is_array($storedToken) && isset($storedToken['value'])) {
+            return (string) $storedToken['value'];
+        }
+
+        return $this->generateCsrfToken($tokenId);
+    }
+
     public function validateCsrfToken(string $token, string $tokenId = 'default', bool $consume = true): bool
     {
         $this->ensureSessionStarted();
@@ -53,7 +67,7 @@ final class Security
 
     public function csrfField(string $tokenId = 'default', string $fieldName = '_token'): string
     {
-        $token = $this->generateCsrfToken($tokenId);
+        $token = $this->csrfToken($tokenId);
 
         return sprintf(
             '<input type="hidden" name="%s" value="%s">',
@@ -131,7 +145,6 @@ final class Security
 
         $config = \HTMLPurifier_Config::createDefault();
         $config->set('Cache.SerializerPath', $cachePath);
-        $config->set('HTML.Doctype', 'HTML 5');
         $config->set('Attr.EnableID', false);
         $config->set('CSS.Trusted', false);
         $config->set('HTML.SafeIframe', false);

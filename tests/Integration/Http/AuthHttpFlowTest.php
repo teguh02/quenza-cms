@@ -35,7 +35,7 @@ final class AuthHttpFlowTest extends DatabaseTestCase
 
         self::assertSame(200, $dashboard->status());
         self::assertStringContainsString('HTTP Tester', $dashboard->content());
-        self::assertStringContainsString('subscriber', $dashboard->content());
+        self::assertStringContainsString('Quick Draft', $dashboard->content());
     }
 
     public function test_guest_is_redirected_to_login_when_accessing_admin(): void
@@ -52,6 +52,7 @@ final class AuthHttpFlowTest extends DatabaseTestCase
         $security = $this->app->get(Security::class);
 
         $userId = $this->database()->insertGetId('users', [
+            'username' => 'logout_tester',
             'full_name' => 'Logout Tester',
             'email' => 'logout@example.com',
             'password_hash' => $security->hashPassword('Testing123!'),

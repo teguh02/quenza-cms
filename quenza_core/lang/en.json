@@ -28,10 +28,49 @@
         "dashboard": "Dashboard",
         "save": "Save",
         "cancel": "Cancel",
-        "delete": "Delete"
+        "delete": "Delete",
+        "back": "Back"
     },
     "database": {
         "migration_completed": "Migration completed.",
         "seed_completed": "Seeder execution completed."
+    },
+    "install": {
+        "title": "Install Quenza CMS",
+        "language": {
+            "heading": "Choose the installation language",
+            "description": "Select the primary language to use during the initial Quenza CMS setup."
+        },
+        "database": {
+            "title": "Database Setup",
+            "heading": "Connect Quenza CMS to your database",
+            "description": "SQLite is the default installation mode, but you can also use MySQL if you already have a database server ready.",
+            "submit": "Submit and Validate Connection",
+            "failed": "Database connection validation failed.",
+            "success": "Database connection validated successfully.",
+            "required": "Database configuration must be completed before continuing the installation."
+        },
+        "site": {
+            "title": "Site Information & Admin",
+            "heading": "Complete your site and admin information",
+            "description": "These values will be used to create the initial configuration, administrator account, and starter content.",
+            "site_title": "Site Title",
+            "admin_username": "Admin Username",
+            "admin_email": "Admin Email",
+            "admin_password": "Admin Password",
+            "password_help": "Use a strong password with at least 10 characters including uppercase, lowercase, numbers, and symbols.",
+            "submit": "Install Quenza CMS",
+            "failed": "Site or admin information is not valid yet."
+        },
+        "process": {
+            "failed": "Installation process failed."
+        },
+        "success": {
+            "title": "Installation Successful",
+            "heading": "Installation Successful!",
+            "description": "Quenza CMS has been installed and seeded with starter content for the site",
+            "login": "Log In",
+            "visit_site": "Visit Site"
+        }
     }
 }

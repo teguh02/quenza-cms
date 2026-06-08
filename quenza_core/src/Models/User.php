@@ -10,6 +10,7 @@ readonly class User extends Model
 {
     public function __construct(
         public int $id,
+        public string $username,
         public string $fullName,
         public string $email,
         public string $passwordHash,
@@ -31,6 +32,7 @@ readonly class User extends Model
     {
         return new self(
             self::intValue($attributes['id'] ?? null),
+            self::stringValue($attributes['username'] ?? null),
             self::stringValue($attributes['full_name'] ?? null),
             self::stringValue($attributes['email'] ?? null),
             self::stringValue($attributes['password_hash'] ?? null),
@@ -49,6 +51,7 @@ readonly class User extends Model
     {
         return [
             'id' => $this->id,
+            'username' => $this->username,
             'full_name' => $this->fullName,
             'email' => $this->email,
             'password_hash' => $this->passwordHash,

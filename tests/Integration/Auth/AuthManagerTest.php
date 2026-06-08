@@ -17,6 +17,7 @@ final class AuthManagerTest extends DatabaseTestCase
         $security = $this->app->get(Security::class);
 
         $this->database()->insert('users', [
+            'username' => 'auth_tester',
             'full_name' => 'Auth Tester',
             'email' => 'auth@example.com',
             'password_hash' => $security->hashPassword('Testing123!'),
