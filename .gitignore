@@ -14,3 +14,7 @@
 !/storage/uploads/.gitignore
 !/storage/uploads/.htaccess
 !/storage/uploads/web.config
+/node_modules/
+/playwright-report/
+/test-results/
+/.playwright-tmp/
