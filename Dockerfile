@@ -14,7 +14,9 @@ RUN set -eux; \
         git \
         libicu-dev \
         libonig-dev \
+        libsqlite3-dev \
         libzip-dev \
+        pkg-config \
         unzip; \
     docker-php-ext-configure intl; \
     docker-php-ext-install -j"$(nproc)" \
