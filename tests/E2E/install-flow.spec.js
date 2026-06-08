@@ -67,8 +67,9 @@ test.describe('Installer black-box e2e', () => {
         await page.getByRole('button', { name: /Install Quenza CMS/i }).click();
 
         await expect(page).toHaveURL(/\/install\?step=3$/);
-        await expect(page.getByText(/Username admin wajib 3-40 karakter/i)).toBeVisible();
-        await expect(page.getByText(/Email admin tidak valid/i)).toBeVisible();
-        await expect(page.getByText(/Password admin minimal 10 karakter/i)).toBeVisible();
+        const errorBox = page.locator('div.border-rose-200.bg-rose-50').first();
+        await expect(errorBox).toContainText(/Username admin wajib 3-40 karakter/i);
+        await expect(errorBox).toContainText(/Email admin tidak valid/i);
+        await expect(errorBox).toContainText(/Password admin minimal 10 karakter/i);
     });
 });
