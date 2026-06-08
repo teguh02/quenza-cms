@@ -25,7 +25,6 @@ RUN set -eux; \
         mysqli \
         pdo_mysql \
         pdo_sqlite \
-        sqlite3 \
         zip; \
     a2enmod expires headers rewrite; \
     { \
