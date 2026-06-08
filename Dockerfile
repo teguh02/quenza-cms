@@ -23,7 +23,6 @@ RUN set -eux; \
         intl \
         mbstring \
         mysqli \
-        opcache \
         pdo_mysql \
         pdo_sqlite \
         sqlite3 \
