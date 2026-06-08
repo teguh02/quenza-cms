@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   sqlite-tests:
     name: SQLite Tests
@@ -40,6 +43,94 @@ jobs:
           DB_DRIVER: sqlite
           DB_SQLITE_PATH: storage/database/quenza_ci.sqlite
         run: composer test
+
+  e2e-playwright:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    needs:
+      - sqlite-tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+          extensions: dom, intl, mbstring, pdo_sqlite, sqlite3, xml, xmlreader, xmlwriter
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Prepare runtime directories
+        run: mkdir -p storage/database storage/logs
+
+      - name: Start PHP server
+        run: |
+          php -S 127.0.0.1:8000 -t public > /tmp/quenza-e2e-php-server.log 2>&1 &
+          echo $! > /tmp/quenza-e2e-php-server.pid
+
+      - name: Wait for server readiness
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:8000/install > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not become ready in time."
+          exit 1
+
+      - name: Run Playwright E2E
+        env:
+          PLAYWRIGHT_USE_EXTERNAL_SERVER: '1'
+        run: npm run e2e
+
+      - name: Stop PHP server
+        if: always()
+        run: |
+          if [ -f /tmp/quenza-e2e-php-server.pid ]; then
+            kill "$(cat /tmp/quenza-e2e-php-server.pid)" || true
+          fi
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          if-no-files-found: ignore
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results
+          if-no-files-found: ignore
+
+      - name: Upload PHP server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-server-log
+          path: /tmp/quenza-e2e-php-server.log
+          if-no-files-found: ignore
 
   mysql-tests:
     name: MySQL Regression Tests

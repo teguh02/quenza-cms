@@ -165,6 +165,8 @@ Quenza CMS sekarang memiliki suite test otomatis untuk:
 - integration test registrasi publik dan login/logout
 - integration test route publik dan dashboard
 
+Suite ini dipakai sebagai **white-box testing** untuk memastikan behavior internal (service, database layer, auth flow, dan routing) tetap konsisten.
+
 Command yang tersedia:
 
 ```bash
@@ -181,6 +183,25 @@ DB_DRIVER=sqlite
 DB_SQLITE_PATH=storage/database/quenza_phpunit.sqlite
 ```
 
+### Playwright E2E
+
+Playwright dipakai sebagai **black-box testing** untuk memverifikasi alur dari sudut pandang user/browser.
+
+Command yang tersedia:
+
+```bash
+npm ci
+npm run e2e
+```
+
+Skenario utama yang diuji:
+
+- first run diarahkan ke wizard instalasi (`/install`)
+- instalasi SQLite sampai selesai (`language -> database -> site/admin`)
+- setelah instalasi, homepage publik terbuka
+- artikel hasil seeding installer tampil di homepage dan detail artikel dapat dibuka
+- validasi negatif untuk field instalasi site/admin yang tidak valid
+
 ### GitHub Actions
 
 Workflow CI tersedia di:
@@ -192,4 +213,5 @@ Workflow CI tersedia di:
 Job yang dijalankan:
 
 - `sqlite-tests` untuk smoke test dan PHPUnit dengan SQLite
+- `e2e-playwright` untuk browser black-box test menggunakan Playwright + artifact report/log
 - `mysql-tests` untuk regression test pada MySQL
