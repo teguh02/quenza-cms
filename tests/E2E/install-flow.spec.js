@@ -49,6 +49,9 @@ test.describe('Installer black-box e2e', () => {
 
         await expect(page).toHaveURL(/\/$/);
         await expect(page.getByRole('heading', { name: 'Selamat Datang di Blog Quenza Anda' })).toBeVisible();
+        await page.reload();
+        await expect(page).toHaveURL(/\/$/);
+        await expect(page).not.toHaveURL(/\/install/);
 
         await page.locator('a[href="/articles/selamat-datang-di-blog-quenza-anda"]').first().click();
         await expect(page).toHaveURL(/\/articles\/selamat-datang-di-blog-quenza-anda$/);
