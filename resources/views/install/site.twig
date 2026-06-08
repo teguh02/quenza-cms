@@ -14,6 +14,12 @@
         </div>
     {% endif %}
 
+    {% if manual_configuration_detected %}
+        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+            Terdeteksi sistem telah terkonfigurasi manual sebelumnya, proses instalasi hanya membaca ulang <code>.env</code> yang sudah ada.
+        </div>
+    {% endif %}
+
     <form method="post" action="/install/site" class="rounded-[28px] border border-slate-200 bg-white p-8 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
         {{ csrf_field() }}
 
@@ -32,8 +38,11 @@
             </div>
             <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">{{ trans('install.site.admin_password') }}</label>
-                <input type="password" name="admin_password" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400 focus:bg-white" required>
+                <input type="password" name="admin_password" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400 focus:bg-white" {% if not site_config.has_admin_password_prefill %}required{% endif %}>
                 <p class="mt-2 text-xs text-slate-400">{{ trans('install.site.password_help') }}</p>
+                {% if site_config.has_admin_password_prefill %}
+                    <p class="mt-2 text-xs font-semibold text-amber-700">Password admin akan memakai konfigurasi manual yang terdeteksi jika field ini dibiarkan kosong.</p>
+                {% endif %}
             </div>
         </div>
 

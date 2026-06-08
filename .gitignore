@@ -10,6 +10,8 @@
 !/storage/cache/htmlpurifier/.gitignore
 /storage/database/*
 !/storage/database/.gitignore
+/storage/system/*
+!/storage/system/.gitignore
 /storage/uploads/*
 !/storage/uploads/.gitignore
 !/storage/uploads/.htaccess

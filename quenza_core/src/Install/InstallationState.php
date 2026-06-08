@@ -17,6 +17,7 @@ final class InstallationState
         private readonly Connection $connection,
         private readonly OptionService $options,
         private readonly SessionManager $session,
+        private readonly InstallLockRepository $lock,
     ) {
     }
 
@@ -26,7 +27,7 @@ final class InstallationState
             return false;
         }
 
-        if (!$this->hasEnvironmentFile()) {
+        if (!$this->lock->exists()) {
             return true;
         }
 
@@ -42,19 +43,7 @@ final class InstallationState
             }
         }
 
-        $completedAt = trim((string) $this->options->get('installation_completed_at', ''));
-
-        if ($completedAt !== '') {
-            return false;
-        }
-
-        if ($this->canInferCompletedInstallation()) {
-            $this->options->set('installation_completed_at', date('Y-m-d H:i:s'));
-
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public function hasEnvironmentFile(): bool
@@ -90,11 +79,8 @@ final class InstallationState
         return '/login';
     }
 
-    private function canInferCompletedInstallation(): bool
+    public function lockPath(): string
     {
-        $hasUsers = $this->connection->table('users')->count() > 0;
-        $siteTitle = trim((string) $this->options->get('site_title', ''));
-
-        return $hasUsers && $siteTitle !== '';
+        return $this->lock->path();
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 use Quenza\Core\Database\DatabaseManager;
 use Quenza\Core\Database\Schema\SchemaManager;
 use Quenza\Core\Foundation\Application;
+use Quenza\Core\Runtime\RuntimeEnvironment;
 use Quenza\Core\Translation\Translator;
 
 if (!function_exists('app')) {
@@ -63,5 +64,15 @@ if (!function_exists('transaction')) {
         return db()->transaction(
             static fn (DatabaseManager $database): mixed => $callback($database),
         );
+    }
+}
+
+if (!function_exists('runtime')) {
+    function runtime(): RuntimeEnvironment
+    {
+        /** @var RuntimeEnvironment $runtime */
+        $runtime = app()->get(RuntimeEnvironment::class);
+
+        return $runtime;
     }
 }

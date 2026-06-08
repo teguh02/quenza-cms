@@ -18,6 +18,7 @@ use Quenza\Core\Database\SeederRunner;
 use Quenza\Core\Database\Schema\SchemaManager;
 use Quenza\Core\Foundation\Application;
 use Quenza\Core\Packages\PackageDiscoverer;
+use Quenza\Core\Runtime\RuntimeEnvironment;
 use Quenza\Core\Security\Security;
 use Quenza\Core\Session\SessionManager;
 use Quenza\Core\Translation\Translator;
@@ -32,7 +33,23 @@ final class InstallerService
         private readonly Application $app,
         private readonly Security $security,
         private readonly SessionManager $session,
+        private readonly InstallLockRepository $lock,
+        private readonly InstallerConfigPrefill $prefill,
+        private readonly RuntimeEnvironment $runtime,
     ) {
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function prefill(): array
+    {
+        return $this->prefill->defaults();
+    }
+
+    public function manualConfigurationDetected(): bool
+    {
+        return $this->runtime->hasManualEnvironmentFile();
     }
 
     /**
@@ -52,16 +69,29 @@ final class InstallerService
         }
 
         $errors = [];
+        $publicScheme = strtolower(trim((string) ($input['public_scheme'] ?? 'http')));
+        $publicHostname = trim((string) ($input['public_hostname'] ?? 'localhost'));
+        $appPublicPort = max(1, (int) ($input['app_public_port'] ?? 80));
+        $appInternalPort = max(1, (int) ($input['app_internal_port'] ?? 80));
+        $dbPublishedPort = max(1, (int) ($input['db_published_port'] ?? ($input['port'] ?? 3306)));
 
         $config = [
             'driver' => $driver->value,
             'charset' => 'utf8mb4',
             'prefix' => 'qz_',
             'options' => config('database.options', []),
+            'public_scheme' => in_array($publicScheme, ['http', 'https'], true) ? $publicScheme : 'http',
+            'public_hostname' => $publicHostname !== '' ? $publicHostname : 'localhost',
+            'app_public_port' => $appPublicPort,
+            'app_internal_port' => $appInternalPort,
+            'db_published_port' => $dbPublishedPort,
+            'runtime_context' => $this->runtime->context(),
         ];
 
         if ($driver === DatabaseDriver::Sqlite) {
-            $config['sqlite_path'] = $this->app->basePath('storage/database/quenza.db');
+            $sqlitePath = trim((string) ($input['sqlite_path'] ?? 'storage/database/quenza.db'));
+            $config['sqlite_path'] = $this->normalizeSqlitePath($sqlitePath);
+            $config['sqlite_path_display'] = $sqlitePath;
         } else {
             $host = trim((string) ($input['host'] ?? ''));
             $port = (int) ($input['port'] ?? 3306);
@@ -111,12 +141,17 @@ final class InstallerService
      * @param array<string, mixed> $input
      * @return array{valid: bool, data: array<string, mixed>, errors: array<string, string>}
      */
-    public function validateSiteConfiguration(array $input): array
+    public function validateSiteConfiguration(array $input, ?string $prefilledPassword = null): array
     {
         $siteTitle = trim((string) ($input['site_title'] ?? ''));
         $adminUsername = trim((string) ($input['admin_username'] ?? ''));
         $adminEmail = trim((string) ($input['admin_email'] ?? ''));
         $adminPassword = (string) ($input['admin_password'] ?? '');
+
+        if ($adminPassword === '' && $prefilledPassword !== null) {
+            $adminPassword = $prefilledPassword;
+        }
+
         $errors = [];
 
         if ($siteTitle === '') {
@@ -142,6 +177,7 @@ final class InstallerService
                 'admin_username' => $adminUsername,
                 'admin_email' => $adminEmail,
                 'admin_password' => $adminPassword,
+                'has_admin_password_prefill' => $prefilledPassword !== null && $prefilledPassword !== '',
             ],
             'errors' => $errors,
         ];
@@ -151,13 +187,15 @@ final class InstallerService
      * @param array<string, mixed> $databaseConfig
      * @param array<string, mixed> $siteConfig
      */
-    public function install(string $locale, array $databaseConfig, array $siteConfig, string $siteUrl): void
+    public function install(string $locale, array $databaseConfig, array $siteConfig, string $fallbackSiteUrl): void
     {
         if ($locale === '') {
             throw new InvalidArgumentException('Locale instalasi wajib diisi.');
         }
 
-        $this->writeEnvironmentFile($locale, $databaseConfig, $siteConfig, $siteUrl);
+        $finalSiteUrl = $this->buildPublicUrl($databaseConfig, $fallbackSiteUrl);
+
+        $this->writeEnvironmentFile($locale, $databaseConfig, $siteConfig, $finalSiteUrl);
         $this->rebindDatabaseServices($databaseConfig);
 
         /** @var Migrator $migrator */
@@ -168,7 +206,7 @@ final class InstallerService
         $seeder = new InstallerSeeder($connection, $this->app, [
             'locale' => $locale,
             'site_title' => (string) $siteConfig['site_title'],
-            'site_url' => $siteUrl,
+            'site_url' => $finalSiteUrl,
             'admin_username' => (string) $siteConfig['admin_username'],
             'admin_email' => (string) $siteConfig['admin_email'],
             'admin_password' => (string) $siteConfig['admin_password'],
@@ -177,6 +215,17 @@ final class InstallerService
         $connection->transaction(static function () use ($seeder): void {
             $seeder->run();
         });
+
+        $this->app->get(OptionService::class)->set('installation_completed_at', date('Y-m-d H:i:s'));
+
+        $this->lock->write([
+            'installed_at' => date('Y-m-d H:i:s'),
+            'driver' => $databaseConfig['driver'],
+            'site_url' => $finalSiteUrl,
+            'locale' => $locale,
+            'runtime' => $this->runtime->context(),
+            'version' => '0.1.0',
+        ]);
 
         $this->session->forget('installer');
     }
@@ -192,13 +241,14 @@ final class InstallerService
             'APP_ENV=local',
             'APP_DEBUG=true',
             'APP_URL="' . str_replace('"', '\\"', $siteUrl) . '"',
+            'QZ_RUNTIME=' . ($this->runtime->usesManualOverride() ? $this->runtime->context() : 'auto'),
             'APP_TIMEZONE="Asia/Jakarta"',
             'APP_LOCALE=' . $locale,
             'APP_FALLBACK_LOCALE=' . ($locale === 'id' ? 'en' : 'id'),
             'SESSION_NAME=QUENZASESSID',
             '',
             'DB_DRIVER=' . $databaseConfig['driver'],
-            'DB_SQLITE_PATH=storage/database/quenza.db',
+            'DB_SQLITE_PATH=' . ($databaseConfig['sqlite_path_display'] ?? 'storage/database/quenza.db'),
             'DB_HOST=' . ($databaseConfig['host'] ?? '127.0.0.1'),
             'DB_PORT=' . ($databaseConfig['port'] ?? 3306),
             'DB_DATABASE=' . ($databaseConfig['database'] ?? 'quenza_cms'),
@@ -206,10 +256,16 @@ final class InstallerService
             'DB_PASSWORD=' . ($databaseConfig['password'] ?? ''),
             'DB_CHARSET=' . ($databaseConfig['charset'] ?? 'utf8mb4'),
             'DB_PREFIX=' . ($databaseConfig['prefix'] ?? 'qz_'),
+            'QZ_PUBLIC_SCHEME=' . ($databaseConfig['public_scheme'] ?? 'http'),
+            'QZ_PUBLIC_HOST=' . ($databaseConfig['public_hostname'] ?? 'localhost'),
+            'QZ_DOCKER_APP_PUBLIC_PORT=' . ($databaseConfig['app_public_port'] ?? 80),
+            'QZ_DOCKER_APP_INTERNAL_PORT=' . ($databaseConfig['app_internal_port'] ?? 80),
+            'QZ_DOCKER_DB_PUBLISHED_PORT=' . ($databaseConfig['db_published_port'] ?? ($databaseConfig['port'] ?? 3306)),
             '',
             'QZ_ACTIVE_THEME=quenza_default',
             'QZ_ADMIN_NAME=',
-            'QZ_ADMIN_EMAIL=',
+            'QZ_ADMIN_USERNAME=' . ($siteConfig['admin_username'] ?? ''),
+            'QZ_ADMIN_EMAIL=' . ($siteConfig['admin_email'] ?? ''),
             'QZ_ADMIN_PASSWORD=',
         ];
 
@@ -268,6 +324,38 @@ final class InstallerService
             $application->get(AuthManager::class),
             $application->get(Translator::class),
         ));
+    }
+
+    private function buildPublicUrl(array $databaseConfig, string $fallbackBaseUrl): string
+    {
+        $scheme = strtolower(trim((string) ($databaseConfig['public_scheme'] ?? 'http')));
+        $host = trim((string) ($databaseConfig['public_hostname'] ?? 'localhost'));
+        $port = (int) ($databaseConfig['app_public_port'] ?? 80);
+
+        if ($host === '') {
+            return $fallbackBaseUrl;
+        }
+
+        $url = $scheme . '://' . $host;
+
+        if (!(($scheme === 'http' && $port === 80) || ($scheme === 'https' && $port === 443))) {
+            $url .= ':' . $port;
+        }
+
+        return $url;
+    }
+
+    private function normalizeSqlitePath(string $path): string
+    {
+        if ($path === '') {
+            return $this->app->basePath('storage/database/quenza.db');
+        }
+
+        if (preg_match('/^[A-Za-z]:\\\\|^\/|^\\\\/', $path) === 1) {
+            return $path;
+        }
+
+        return $this->app->basePath(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path));
     }
 
     private function isStrongPassword(string $password): bool

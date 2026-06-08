@@ -160,11 +160,23 @@ final class Request
 
     public function host(): string
     {
+        $forwardedHost = $this->header('X-Forwarded-Host');
+
+        if (is_string($forwardedHost) && trim($forwardedHost) !== '') {
+            return trim(explode(',', $forwardedHost)[0]);
+        }
+
         return (string) ($this->server['HTTP_HOST'] ?? 'localhost');
     }
 
     public function scheme(): string
     {
+        $forwardedProto = $this->header('X-Forwarded-Proto');
+
+        if (is_string($forwardedProto) && trim($forwardedProto) !== '') {
+            return strtolower(trim(explode(',', $forwardedProto)[0])) === 'https' ? 'https' : 'http';
+        }
+
         $https = (string) ($this->server['HTTPS'] ?? '');
 
         return $https !== '' && strtolower($https) !== 'off' ? 'https' : 'http';
@@ -172,7 +184,16 @@ final class Request
 
     public function baseUrl(): string
     {
-        return $this->scheme() . '://' . $this->host();
+        $host = $this->host();
+        $scheme = $this->scheme();
+        $forwardedPort = $this->header('X-Forwarded-Port');
+        $port = is_string($forwardedPort) && trim($forwardedPort) !== '' ? (int) trim(explode(',', $forwardedPort)[0]) : null;
+
+        if ($port === null || ($scheme === 'http' && $port === 80) || ($scheme === 'https' && $port === 443)) {
+            return $scheme . '://' . $host;
+        }
+
+        return $scheme . '://' . $host . ':' . $port;
     }
 
     /**

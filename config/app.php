@@ -8,6 +8,7 @@ return [
     'env' => Env::string('APP_ENV', 'production'),
     'debug' => Env::bool('APP_DEBUG', false),
     'url' => Env::string('APP_URL', 'http://localhost'),
+    'runtime' => Env::string('QZ_RUNTIME', 'auto'),
     'timezone' => Env::string('APP_TIMEZONE', 'UTC'),
     'locale' => Env::string('APP_LOCALE', 'id'),
     'fallback_locale' => Env::string('APP_FALLBACK_LOCALE', 'en'),

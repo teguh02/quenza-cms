@@ -22,13 +22,19 @@ final class InstallController
     public function show(Request $request): Response
     {
         $state = $this->installerState();
-        $step = max(1, min(3, (int) $request->input('step', $this->currentStep($state))));
+        $stepInput = $request->input('step');
+        $step = $stepInput === null
+            ? 1
+            : max(1, min(3, (int) $stepInput));
+        $runtimeContext = (string) ($state['runtime_context'] ?? runtime()->context());
+        $manualConfigurationDetected = (bool) ($state['manual_configuration_detected'] ?? $this->installer->manualConfigurationDetected());
 
         return match ($step) {
             1 => Response::html($this->view->render('install/language.twig', [
                 'page_title' => trans('install.title'),
                 'installer_step' => 1,
                 'selected_locale' => $state['locale'] ?? 'id',
+                'manual_configuration_detected' => $manualConfigurationDetected,
             ])),
             2 => Response::html($this->view->render('install/database.twig', [
                 'page_title' => trans('install.database.title'),
@@ -43,11 +49,15 @@ final class InstallController
                     'password' => '',
                     'sqlite_path' => 'storage/database/quenza.db',
                 ],
+                'runtime_context' => $runtimeContext,
+                'manual_configuration_detected' => $manualConfigurationDetected,
             ])),
             default => Response::html($this->view->render('install/site.twig', [
                 'page_title' => trans('install.site.title'),
                 'installer_step' => 3,
                 'site_config' => $state['site'] ?? [],
+                'runtime_context' => $runtimeContext,
+                'manual_configuration_detected' => $manualConfigurationDetected,
             ])),
         };
     }
@@ -96,7 +106,11 @@ final class InstallController
             return Response::redirect('/install?step=2');
         }
 
-        $siteValidation = $this->installer->validateSiteConfiguration($request->allInput());
+        $prefilledPassword = isset($state['site']['admin_password']) && is_string($state['site']['admin_password']) && $state['site']['admin_password'] !== ''
+            ? (string) $state['site']['admin_password']
+            : null;
+
+        $siteValidation = $this->installer->validateSiteConfiguration($request->allInput(), $prefilledPassword);
 
         if (!$siteValidation['valid']) {
             $state['site'] = $siteValidation['data'];
@@ -150,23 +164,15 @@ final class InstallController
     private function installerState(): array
     {
         $state = $this->session->get('installer', []);
+        $prefill = $this->installer->prefill();
 
-        return is_array($state) ? $state : [];
-    }
+        if (!is_array($state) || $state === []) {
+            $this->session->put('installer', $prefill);
 
-    /**
-     * @param array<string, mixed> $state
-     */
-    private function currentStep(array $state): int
-    {
-        if (!isset($state['locale'])) {
-            return 1;
+            return $prefill;
         }
 
-        if (!isset($state['database'])) {
-            return 2;
-        }
-
-        return 3;
+        return array_replace_recursive($prefill, $state);
     }
+
 }

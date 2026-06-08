@@ -17,6 +17,8 @@ use Quenza\Core\Foundation\Application;
 use Quenza\Core\Foundation\Autoloader;
 use Quenza\Core\Http\HttpKernel;
 use Quenza\Core\Http\Router;
+use Quenza\Core\Install\InstallLockRepository;
+use Quenza\Core\Install\InstallerConfigPrefill;
 use Quenza\Core\Install\InstallationState;
 use Quenza\Core\Install\InstallerService;
 use Quenza\Core\Packages\ManifestValidator;
@@ -27,6 +29,7 @@ use Quenza\Core\Session\SessionManager;
 use Quenza\Core\Support\Env;
 use Quenza\Core\Translation\Translator;
 use Quenza\Core\View\TwigRenderer;
+use Quenza\Core\Runtime\RuntimeEnvironment;
 
 $basePath = dirname(__DIR__);
 
@@ -82,6 +85,8 @@ $app->singleton(ActivityLogService::class, static fn (Application $application):
 $app->singleton(Security::class, static fn (Application $application): Security => new Security($application));
 
 $app->singleton(SessionManager::class, static fn (Application $application): SessionManager => new SessionManager($application));
+
+$app->singleton(RuntimeEnvironment::class, static fn (Application $application): RuntimeEnvironment => new RuntimeEnvironment($application));
 
 $app->singleton(Translator::class, static fn (Application $application): Translator => new Translator(
     $application->basePath('quenza_core/lang'),
@@ -139,12 +144,23 @@ $app->singleton(InstallationState::class, static fn (Application $application): 
     $application->get(Connection::class),
     $application->get(OptionService::class),
     $application->get(SessionManager::class),
+    $application->get(InstallLockRepository::class),
+));
+
+$app->singleton(InstallLockRepository::class, static fn (Application $application): InstallLockRepository => new InstallLockRepository($application));
+
+$app->singleton(InstallerConfigPrefill::class, static fn (Application $application): InstallerConfigPrefill => new InstallerConfigPrefill(
+    $application,
+    $application->get(RuntimeEnvironment::class),
 ));
 
 $app->singleton(InstallerService::class, static fn (Application $application): InstallerService => new InstallerService(
     $application,
     $application->get(Security::class),
     $application->get(SessionManager::class),
+    $application->get(InstallLockRepository::class),
+    $application->get(InstallerConfigPrefill::class),
+    $application->get(RuntimeEnvironment::class),
 ));
 
 $app->singleton(TwigRenderer::class, static fn (Application $application): TwigRenderer => new TwigRenderer(

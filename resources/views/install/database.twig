@@ -14,6 +14,12 @@
         </div>
     {% endif %}
 
+    {% if manual_configuration_detected %}
+        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+            Terdeteksi sistem telah terkonfigurasi manual sebelumnya, proses instalasi hanya membaca ulang <code>.env</code> yang sudah ada.
+        </div>
+    {% endif %}
+
     <form method="post" action="/install/database" class="rounded-[28px] border border-slate-200 bg-white p-8 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
         {{ csrf_field() }}
 
@@ -23,7 +29,7 @@
                 <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Default</p>
                 <h2 class="mt-2 text-xl font-bold text-slate-900">SQLite</h2>
                 <p class="mt-2 text-sm leading-7 text-slate-500">Buat file database lokal otomatis di jalur aman.</p>
-                <p class="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500">storage/database/quenza.db</p>
+                <p class="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500">{{ database_config.sqlite_path ?? 'storage/database/quenza.db' }}</p>
             </label>
 
             <label class="rounded-3xl border p-5 transition-all duration-300 ease-in-out" :class="driver === 'mysql' ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-slate-50'">
@@ -32,6 +38,11 @@
                 <h2 class="mt-2 text-xl font-bold text-slate-900">MySQL</h2>
                 <p class="mt-2 text-sm leading-7 text-slate-500">Gunakan server database terpisah untuk deployment yang lebih besar.</p>
             </label>
+        </div>
+
+        <div x-show="driver === 'sqlite'" x-cloak class="mt-8">
+            <label class="mb-2 block text-sm font-semibold text-slate-700">SQLite Path</label>
+            <input type="text" name="sqlite_path" value="{{ database_config.sqlite_path ?? 'storage/database/quenza.db' }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400 focus:bg-white">
         </div>
 
         <div x-show="driver === 'mysql'" x-cloak class="mt-8 grid gap-5 md:grid-cols-2">
@@ -56,6 +67,49 @@
                 <input type="password" name="password" value="{{ database_config.password ?? '' }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400 focus:bg-white">
             </div>
         </div>
+
+        {% if runtime_context == 'docker' %}
+            <div class="mt-8 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+                <div class="mb-5 flex items-start gap-4">
+                    <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FEF3C7] text-slate-700">!</div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Konfigurasi Runtime Docker Terdeteksi</h2>
+                        <p class="mt-2 text-sm leading-7 text-slate-600">Setelah mengubah pengaturan ini, Anda diwajibkan membuka aplikasi kembali dengan menggunakan hostname dan port baru yang Anda konfigurasi.</p>
+                    </div>
+                </div>
+                <div class="grid gap-5 md:grid-cols-2">
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Public Scheme</label>
+                        <select name="public_scheme" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400">
+                            <option value="http" {% if (database_config.public_scheme ?? 'http') == 'http' %}selected{% endif %}>http</option>
+                            <option value="https" {% if (database_config.public_scheme ?? 'http') == 'https' %}selected{% endif %}>https</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Public Hostname</label>
+                        <input type="text" name="public_hostname" value="{{ database_config.public_hostname ?? 'localhost' }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400">
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">App Public Port</label>
+                        <input type="number" name="app_public_port" value="{{ database_config.app_public_port ?? 80 }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400">
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">App Internal Port</label>
+                        <input type="number" name="app_internal_port" value="{{ database_config.app_internal_port ?? 80 }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Database Published Port</label>
+                        <input type="number" name="db_published_port" value="{{ database_config.db_published_port ?? database_config.port ?? 3306 }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all duration-300 ease-in-out focus:border-teal-400">
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <input type="hidden" name="public_scheme" value="{{ database_config.public_scheme ?? 'http' }}">
+            <input type="hidden" name="public_hostname" value="{{ database_config.public_hostname ?? 'localhost' }}">
+            <input type="hidden" name="app_public_port" value="{{ database_config.app_public_port ?? 80 }}">
+            <input type="hidden" name="app_internal_port" value="{{ database_config.app_internal_port ?? 80 }}">
+            <input type="hidden" name="db_published_port" value="{{ database_config.db_published_port ?? database_config.port ?? 3306 }}">
+        {% endif %}
 
         <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
             <a href="/install?step=1" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 ease-in-out hover:bg-slate-100">{{ trans('common.back') }}</a>
