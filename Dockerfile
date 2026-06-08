@@ -14,17 +14,17 @@ RUN set -eux; \
         git \
         libicu-dev \
         libonig-dev \
+        libsqlite3-dev \
         libzip-dev \
+        pkg-config \
         unzip; \
     docker-php-ext-configure intl; \
     docker-php-ext-install -j"$(nproc)" \
         intl \
         mbstring \
         mysqli \
-        opcache \
         pdo_mysql \
         pdo_sqlite \
-        sqlite3 \
         zip; \
     a2enmod expires headers rewrite; \
     { \
