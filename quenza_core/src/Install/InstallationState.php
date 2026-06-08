@@ -42,7 +42,19 @@ final class InstallationState
             }
         }
 
-        return trim((string) $this->options->get('installation_completed_at', '')) === '';
+        $completedAt = trim((string) $this->options->get('installation_completed_at', ''));
+
+        if ($completedAt !== '') {
+            return false;
+        }
+
+        if ($this->canInferCompletedInstallation()) {
+            $this->options->set('installation_completed_at', date('Y-m-d H:i:s'));
+
+            return false;
+        }
+
+        return true;
     }
 
     public function hasEnvironmentFile(): bool
@@ -76,5 +88,13 @@ final class InstallationState
         }
 
         return '/login';
+    }
+
+    private function canInferCompletedInstallation(): bool
+    {
+        $hasUsers = $this->connection->table('users')->count() > 0;
+        $siteTitle = trim((string) $this->options->get('site_title', ''));
+
+        return $hasUsers && $siteTitle !== '';
     }
 }
