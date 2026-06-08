@@ -63,6 +63,7 @@ test.describe('Installer black-box e2e', () => {
         await page.locator('input[name="admin_username"]').fill('ab');
         await page.locator('input[name="admin_email"]').fill('invalid-email');
         await page.locator('input[name="admin_password"]').fill('Weakpass1');
+        await page.locator('form').evaluate((form) => form.setAttribute('novalidate', 'novalidate'));
         await page.getByRole('button', { name: /Install Quenza CMS/i }).click();
 
         await expect(page).toHaveURL(/\/install\?step=3$/);
