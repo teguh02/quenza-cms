@@ -21,15 +21,36 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="bg-slate-50 font-sans text-slate-900">
+<body class="bg-slate-50 font-sans text-slate-900 flex flex-col min-h-screen">
+    <header class="bg-white border-b border-slate-200">
+        <div class="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
+            <a href="/" class="text-xl font-bold text-[#0F172A] tracking-tight">{{ site_title|default(app_name) }}</a>
+            <nav class="flex items-center gap-6">
+                {% if is_authenticated() %}
+                    <a href="/admin" class="text-sm font-semibold text-slate-500 hover:text-teal-600 transition-colors">Dashboard</a>
+                {% else %}
+                    <a href="/login" class="text-sm font-semibold text-slate-500 hover:text-teal-600 transition-colors">Login</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
     {% if status_message %}
-        <div class="mx-auto max-w-6xl px-6 pt-6">
+        <div class="mx-auto w-full max-w-7xl px-6 pt-6">
             <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out">
                 {{ status_message }}
             </div>
         </div>
     {% endif %}
 
-    {% block content %}{% endblock %}
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-slate-50 border-t border-slate-200 py-8 mt-12">
+        <div class="mx-auto max-w-7xl px-6 text-center">
+            <p class="text-sm text-slate-400">Copyright &copy; {{ "now"|date("Y") }} {{ site_title|default(app_name) }}. Powered by Quenza CMS.</p>
+        </div>
+    </footer>
 </body>
 </html>
