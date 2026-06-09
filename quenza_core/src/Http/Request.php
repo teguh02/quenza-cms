@@ -146,6 +146,14 @@ final class Request
         return $clone;
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public function routeParameters(): array
+    {
+        return $this->routeParameters;
+    }
+
     public function ipAddress(): string
     {
         return (string) ($this->server['REMOTE_ADDR'] ?? '127.0.0.1');
