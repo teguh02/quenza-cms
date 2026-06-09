@@ -21,7 +21,7 @@ final class MenuController
 
     public function index(Request $request): Response
     {
-        $menus = $this->db->select('SELECT * FROM menus ORDER BY name ASC');
+        $menus = $this->db->table('menus')->orderBy('name', 'asc')->get();
         $activeMenuId = (int) $request->input('menu_id', 0);
         
         if ($activeMenuId === 0 && !empty($menus)) {
@@ -33,14 +33,14 @@ final class MenuController
         if ($activeMenuId > 0) {
             $activeMenu = current(array_filter($menus, fn($m) => (int)$m['id'] === $activeMenuId)) ?: null;
             if ($activeMenu) {
-                $menuItems = $this->db->select('SELECT * FROM menu_items WHERE menu_id = ? ORDER BY sort_order ASC', [$activeMenuId]);
+                $menuItems = $this->db->table('menu_items')->where('menu_id', $activeMenuId)->orderBy('sort_order', 'asc')->get();
                 // Build tree
                 $menuItems = $this->buildTree($menuItems);
             }
         }
 
-        $pages = $this->db->select("SELECT id, title FROM posts WHERE type = 'page' AND status = 'published' ORDER BY title ASC");
-        $posts = $this->db->select("SELECT id, title FROM posts WHERE type = 'post' AND status = 'published' ORDER BY title ASC LIMIT 20");
+        $pages = $this->db->table('posts')->where('type', 'page')->where('status', 'published')->orderBy('title', 'asc')->get();
+        $posts = $this->db->table('posts')->where('type', 'post')->where('status', 'published')->orderBy('title', 'asc')->limit(20)->get();
 
         return Response::html($this->view->render('admin/appearance/menus.twig', [
             'page_title' => 'Menus',
@@ -62,8 +62,11 @@ final class MenuController
             return Response::redirect('/admin/menus');
         }
 
-        $this->db->statement('INSERT INTO menus (name, created_at, updated_at) VALUES (?, NOW(), NOW())', [$name]);
-        $menuId = $this->db->connection()->pdo()->lastInsertId();
+        $menuId = $this->db->insertGetId('menus', [
+            'name' => $name,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
 
         $this->session->flash('status', 'Menu berhasil dibuat.');
         return Response::redirect('/admin/menus?menu_id=' . $menuId);
@@ -88,14 +91,18 @@ final class MenuController
         }
 
         // Get max sort_order
-        $stmt = $this->db->connection()->pdo()->prepare('SELECT MAX(sort_order) FROM menu_items WHERE menu_id = ?');
-        $stmt->execute([$menuId]);
-        $maxSort = (int) $stmt->fetchColumn();
+        $maxSort = (int) $this->db->scalar('SELECT MAX(sort_order) FROM ' . $this->db->quotedTable('menu_items') . ' WHERE menu_id = ?', [$menuId]);
 
-        $this->db->statement(
-            'INSERT INTO menu_items (menu_id, type, label, url, linked_post_id, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())',
-            [$menuId, $type, $label, $url ?: null, $linkedPostId > 0 ? $linkedPostId : null, $maxSort + 1]
-        );
+        $this->db->insert('menu_items', [
+            'menu_id' => $menuId,
+            'type' => $type,
+            'label' => $label,
+            'url' => $url ?: null,
+            'linked_post_id' => $linkedPostId > 0 ? $linkedPostId : null,
+            'sort_order' => $maxSort + 1,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
 
         $this->session->flash('status', 'Item berhasil ditambahkan ke menu.');
         return Response::redirect('/admin/menus?menu_id=' . $menuId);
@@ -114,7 +121,7 @@ final class MenuController
                     foreach ($items as $index => $item) {
                         $id = (int) ($item['id'] ?? 0);
                         if ($id > 0) {
-                            $this->db->statement('UPDATE menu_items SET sort_order = ? WHERE id = ? AND menu_id = ?', [$index, $id, $menuId]);
+                            $this->db->table('menu_items')->where('id', $id)->where('menu_id', $menuId)->update(['sort_order' => $index]);
                         }
                     }
                     $this->db->connection()->pdo()->commit();
@@ -135,7 +142,7 @@ final class MenuController
         $menuId = (int) $request->input('menu_id', 0);
         
         if ($id > 0) {
-            $this->db->statement('DELETE FROM menu_items WHERE id = ?', [$id]);
+            $this->db->table('menu_items')->where('id', $id)->delete();
             $this->session->flash('status', 'Item menu berhasil dihapus.');
         }
 
@@ -146,7 +153,7 @@ final class MenuController
     {
         $id = (int) ($vars['id'] ?? 0);
         if ($id > 0) {
-            $this->db->statement('DELETE FROM menus WHERE id = ?', [$id]);
+            $this->db->table('menus')->where('id', $id)->delete();
             $this->session->flash('status', 'Menu berhasil dihapus.');
         }
         return Response::redirect('/admin/menus');
