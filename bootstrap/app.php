@@ -34,9 +34,7 @@ use Quenza\Core\Runtime\RuntimeEnvironment;
 $basePath = dirname(__DIR__);
 
 $vendorAutoload = $basePath . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-if (is_file($vendorAutoload)) {
-    require_once $vendorAutoload;
-}
+$useComposerAutoload = is_file($vendorAutoload);
 
 require_once $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Support' . DIRECTORY_SEPARATOR . 'Env.php';
 require_once $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Foundation' . DIRECTORY_SEPARATOR . 'Autoloader.php';
@@ -52,6 +50,20 @@ $autoloader = new Autoloader();
 $autoloader->addNamespace('Quenza\\Core\\', $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'src');
 $autoloader->addNamespace('Database\\Migrations\\', $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'migrations');
 $autoloader->addNamespace('Database\\Seeders\\', $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'seeders');
+
+if ($useComposerAutoload) {
+    // === DEVELOPER MODE: vendor/ composer tersedia ===
+    require_once $vendorAutoload;
+} else {
+    // === STANDALONE MODE (Zero-Composer): Gunakan libs/ yang sudah di-bundle ===
+    $autoloader->addNamespace('Twig\\', $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR . 'twig' . DIRECTORY_SEPARATOR . 'src');
+
+    $htmlPurifierAutoload = $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR . 'htmlpurifier' . DIRECTORY_SEPARATOR . 'library' . DIRECTORY_SEPARATOR . 'HTMLPurifier.auto.php';
+    if (is_file($htmlPurifierAutoload)) {
+        require_once $htmlPurifierAutoload;
+    }
+}
+
 $autoloader->register();
 
 $config = [

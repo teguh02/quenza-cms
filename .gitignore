@@ -20,3 +20,6 @@
 /playwright-report/
 /test-results/
 /.playwright-tmp/
+
+# Libraries in quenza_core/libs are intentionally committed for Zero-Composer mode
+!/quenza_core/libs/

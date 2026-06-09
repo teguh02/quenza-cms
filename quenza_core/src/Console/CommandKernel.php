@@ -28,6 +28,7 @@ final class CommandKernel
                 'migrate:status' => $this->handleStatus($options),
                 'migrate:fresh' => $this->handleFresh($options),
                 'db:seed' => $this->handleSeed($options),
+                'bundle:sync' => $this->handleBundleSync($options),
                 'help', '--help', '-h' => $this->renderHelp(),
                 default => $this->renderUnknownCommand($command),
             };
@@ -153,6 +154,63 @@ final class CommandKernel
         return 0;
     }
 
+    /**
+     * @param array<string, string|bool> $options
+     */
+    private function handleBundleSync(array $options): int
+    {
+        $this->writeLine('Sinkronisasi library pihak ketiga dari vendor/ ke quenza_core/libs/ ...');
+
+        $vendorTwig = $this->app->basePath('vendor/twig/twig/src');
+        $libsTwig = $this->app->basePath('quenza_core/libs/twig/src');
+
+        $vendorHtmlPurifier = $this->app->basePath('vendor/ezyang/htmlpurifier/library');
+        $libsHtmlPurifier = $this->app->basePath('quenza_core/libs/htmlpurifier/library');
+
+        $success = true;
+
+        if (is_dir($vendorTwig)) {
+            $this->copyDirectory($vendorTwig, $libsTwig);
+            $this->writeLine('[OK] Twig berhasil disinkronisasi.');
+        } else {
+            $this->writeError('[FAIL] Gagal sinkronisasi Twig: vendor/twig/twig/src tidak ditemukan.');
+            $success = false;
+        }
+
+        if (is_dir($vendorHtmlPurifier)) {
+            $this->copyDirectory($vendorHtmlPurifier, $libsHtmlPurifier);
+            $this->writeLine('[OK] HTMLPurifier berhasil disinkronisasi.');
+        } else {
+            $this->writeError('[FAIL] Gagal sinkronisasi HTMLPurifier: vendor/ezyang/htmlpurifier/library tidak ditemukan.');
+            $success = false;
+        }
+
+        return $success ? 0 : 1;
+    }
+
+    private function copyDirectory(string $source, string $destination): void
+    {
+        if (!is_dir($destination)) {
+            mkdir($destination, 0755, true);
+        }
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($iterator as $item) {
+            $target = $destination . DIRECTORY_SEPARATOR . $iterator->getSubPathname();
+            if ($item->isDir()) {
+                if (!is_dir($target)) {
+                    mkdir($target, 0755, true);
+                }
+            } else {
+                copy($item->getPathname(), $target);
+            }
+        }
+    }
+
     private function renderHelp(): int
     {
         $this->writeLine('Quenza CMS CLI');
@@ -166,6 +224,7 @@ final class CommandKernel
         $this->writeLine('  php bin/qz migrate:fresh --seed');
         $this->writeLine('  php bin/qz db:seed');
         $this->writeLine('  php bin/qz db:seed --scope=theme --package=default');
+        $this->writeLine('  php bin/qz bundle:sync');
 
         return 0;
     }
