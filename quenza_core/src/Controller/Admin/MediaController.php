@@ -43,7 +43,7 @@ final class MediaController
         $file = $_FILES['file'];
         $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9.\-_]/', '', basename($file['name']));
         
-        $uploadDir = __DIR__ . '/../../../../../public/uploads/media';
+        $uploadDir = dirname(__DIR__, 4) . '/public/uploads/media';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
@@ -93,7 +93,7 @@ final class MediaController
         $media = $this->database->table('media')->where('id', $id)->first();
 
         if ($media) {
-            $filePath = __DIR__ . '/../../../../../public' . $media['path'];
+            $filePath = dirname(__DIR__, 4) . '/public' . $media['path'];
             if (file_exists($filePath)) {
                 @unlink($filePath);
             }

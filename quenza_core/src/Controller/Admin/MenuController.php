@@ -1,0 +1,169 @@
+<?php
+declare(strict_types=1);
+
+namespace Quenza\Core\Controller\Admin;
+
+use PDO;
+use Quenza\Core\Database\Connection;
+use Quenza\Core\Http\Request;
+use Quenza\Core\Http\Response;
+use Quenza\Core\Session\SessionManager;
+use Quenza\Core\View\TwigRenderer;
+
+final class MenuController
+{
+    public function __construct(
+        private readonly TwigRenderer $view,
+        private readonly Connection $db,
+        private readonly SessionManager $session,
+    ) {
+    }
+
+    public function index(Request $request): Response
+    {
+        $menus = $this->db->fetchAll('SELECT * FROM menus ORDER BY name ASC');
+        $activeMenuId = (int) $request->input('menu_id', 0);
+        
+        if ($activeMenuId === 0 && !empty($menus)) {
+            $activeMenuId = (int) $menus[0]['id'];
+        }
+
+        $activeMenu = null;
+        $menuItems = [];
+        if ($activeMenuId > 0) {
+            $activeMenu = current(array_filter($menus, fn($m) => (int)$m['id'] === $activeMenuId)) ?: null;
+            if ($activeMenu) {
+                $menuItems = $this->db->fetchAll('SELECT * FROM menu_items WHERE menu_id = ? ORDER BY sort_order ASC', [$activeMenuId]);
+                // Build tree
+                $menuItems = $this->buildTree($menuItems);
+            }
+        }
+
+        $pages = $this->db->fetchAll("SELECT id, title FROM posts WHERE type = 'page' AND status = 'published' ORDER BY title ASC");
+        $posts = $this->db->fetchAll("SELECT id, title FROM posts WHERE type = 'post' AND status = 'published' ORDER BY title ASC LIMIT 20");
+
+        return Response::html($this->view->render('admin/appearance/menus.twig', [
+            'page_title' => 'Menus',
+            'menus' => $menus,
+            'active_menu' => $activeMenu,
+            'menu_items' => $menuItems,
+            'pages' => $pages,
+            'posts' => $posts,
+            'status_message' => $this->session->getFlash('status'),
+            'error_message' => $this->session->getFlash('error'),
+        ]));
+    }
+
+    public function storeMenu(Request $request): Response
+    {
+        $name = trim((string) $request->input('name', ''));
+        if ($name === '') {
+            $this->session->flash('error', 'Nama menu wajib diisi.');
+            return Response::redirect('/admin/menus');
+        }
+
+        $this->db->execute('INSERT INTO menus (name, created_at, updated_at) VALUES (?, NOW(), NOW())', [$name]);
+        $menuId = $this->db->pdo()->lastInsertId();
+
+        $this->session->flash('status', 'Menu berhasil dibuat.');
+        return Response::redirect('/admin/menus?menu_id=' . $menuId);
+    }
+
+    public function storeItem(Request $request): Response
+    {
+        $menuId = (int) $request->input('menu_id', 0);
+        if ($menuId <= 0) {
+            $this->session->flash('error', 'Pilih menu terlebih dahulu.');
+            return Response::redirect('/admin/menus');
+        }
+
+        $type = (string) $request->input('type', 'custom');
+        $label = trim((string) $request->input('label', ''));
+        $url = trim((string) $request->input('url', ''));
+        $linkedPostId = (int) $request->input('linked_post_id', 0);
+
+        if ($label === '') {
+            $this->session->flash('error', 'Label wajib diisi.');
+            return Response::redirect('/admin/menus?menu_id=' . $menuId);
+        }
+
+        // Get max sort_order
+        $stmt = $this->db->pdo()->prepare('SELECT MAX(sort_order) FROM menu_items WHERE menu_id = ?');
+        $stmt->execute([$menuId]);
+        $maxSort = (int) $stmt->fetchColumn();
+
+        $this->db->execute(
+            'INSERT INTO menu_items (menu_id, type, label, url, linked_post_id, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())',
+            [$menuId, $type, $label, $url ?: null, $linkedPostId > 0 ? $linkedPostId : null, $maxSort + 1]
+        );
+
+        $this->session->flash('status', 'Item berhasil ditambahkan ke menu.');
+        return Response::redirect('/admin/menus?menu_id=' . $menuId);
+    }
+
+    public function updateOrder(Request $request): Response
+    {
+        $menuId = (int) $request->input('menu_id', 0);
+        $order = $request->input('order'); // json string
+        
+        if ($menuId > 0 && $order) {
+            $items = json_decode((string) $order, true);
+            if (is_array($items)) {
+                $this->db->pdo()->beginTransaction();
+                try {
+                    foreach ($items as $index => $item) {
+                        $id = (int) ($item['id'] ?? 0);
+                        if ($id > 0) {
+                            $this->db->execute('UPDATE menu_items SET sort_order = ? WHERE id = ? AND menu_id = ?', [$index, $id, $menuId]);
+                        }
+                    }
+                    $this->db->pdo()->commit();
+                    $this->session->flash('status', 'Urutan menu berhasil disimpan.');
+                } catch (\Throwable $e) {
+                    $this->db->pdo()->rollBack();
+                    $this->session->flash('error', 'Gagal menyimpan urutan menu.');
+                }
+            }
+        }
+        
+        return Response::redirect('/admin/menus?menu_id=' . $menuId);
+    }
+
+    public function deleteItem(Request $request, array $vars): Response
+    {
+        $id = (int) ($vars['id'] ?? 0);
+        $menuId = (int) $request->input('menu_id', 0);
+        
+        if ($id > 0) {
+            $this->db->execute('DELETE FROM menu_items WHERE id = ?', [$id]);
+            $this->session->flash('status', 'Item menu berhasil dihapus.');
+        }
+
+        return Response::redirect('/admin/menus?menu_id=' . $menuId);
+    }
+
+    public function deleteMenu(Request $request, array $vars): Response
+    {
+        $id = (int) ($vars['id'] ?? 0);
+        if ($id > 0) {
+            $this->db->execute('DELETE FROM menus WHERE id = ?', [$id]);
+            $this->session->flash('status', 'Menu berhasil dihapus.');
+        }
+        return Response::redirect('/admin/menus');
+    }
+
+    private function buildTree(array $elements, $parentId = null): array
+    {
+        $branch = array();
+        foreach ($elements as $element) {
+            if ($element['parent_id'] == $parentId) {
+                $children = $this->buildTree($elements, $element['id']);
+                if ($children) {
+                    $element['children'] = $children;
+                }
+                $branch[] = $element;
+            }
+        }
+        return $branch;
+    }
+}

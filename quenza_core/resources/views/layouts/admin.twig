@@ -20,6 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    {% block head %}{% endblock %}
 </head>
 <body class="bg-slate-50 font-sans text-slate-900">
     <div class="min-h-screen bg-slate-50 p-4 md:p-6">
@@ -41,7 +42,20 @@
                 <a href="/admin/media" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">M</span><span class="truncate">Media</span></a>
                 <a href="/admin/pages" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">G</span><span class="truncate">Pages</span></a>
                 <a href="/admin/comments" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">C</span><span class="truncate">Comments</span></a>
-                <a href="/admin/appearance" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">A</span><span class="truncate">Appearance</span></a>
+                <div x-data="{ open: window.location.pathname.startsWith('/admin/appearance') || window.location.pathname.startsWith('/admin/menus') || window.location.pathname.startsWith('/admin/identity') }" class="space-y-1">
+                    <button @click="open = !open" type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">A</span>
+                            <span class="truncate">Appearance</span>
+                        </div>
+                        <svg :class="{'rotate-180': open}" class="h-4 w-4 transition-transform text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    <div x-show="open" x-transition class="space-y-1 pl-[3.25rem] pr-2">
+                        <a href="/admin/appearance" class="block rounded-xl px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-teal-600 transition-colors">Themes</a>
+                        <a href="/admin/menus" class="block rounded-xl px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-teal-600 transition-colors">Menus</a>
+                        <a href="/admin/identity" class="block rounded-xl px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-teal-600 transition-colors">Site Identity</a>
+                    </div>
+                </div>
                 <a href="/admin/plugins" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">L</span><span class="truncate">Plugins</span></a>
                 <a href="/admin/users" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">U</span><span class="truncate">Users</span></a>
                 <a href="/admin/settings" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">S</span><span class="truncate">Settings</span></a>
@@ -68,5 +82,6 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

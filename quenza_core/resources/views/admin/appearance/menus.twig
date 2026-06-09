@@ -1,0 +1,223 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">{{ page_title }}</h1>
+    <p class="mt-1 text-sm text-slate-500">Kelola menu navigasi situs Anda.</p>
+</div>
+
+{% if status_message %}
+    <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700">
+        {{ status_message }}
+    </div>
+{% endif %}
+{% if error_message %}
+    <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
+        {{ error_message }}
+    </div>
+{% endif %}
+
+<div class="grid gap-8 lg:grid-cols-12">
+    <!-- Sidebar: Pilih/Buat Menu & Tambah Item -->
+    <div class="lg:col-span-4 space-y-6">
+        <!-- Pilih/Buat Menu -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="font-bold text-slate-900 mb-4">Pilih Menu</h3>
+            <form method="get" action="/admin/menus" class="flex gap-2">
+                <select name="menu_id" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-teal-400 focus:bg-white" onchange="this.form.submit()">
+                    <option value="0">-- Buat Menu Baru --</option>
+                    {% for menu in menus %}
+                        <option value="{{ menu.id }}" {% if active_menu and active_menu.id == menu.id %}selected{% endif %}>{{ menu.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Pilih</button>
+            </form>
+
+            {% if not active_menu %}
+                <hr class="my-6 border-slate-100">
+                <h3 class="font-bold text-slate-900 mb-4">Buat Menu Baru</h3>
+                <form method="post" action="/admin/menus/store">
+                    {{ csrf_field() }}
+                    <div class="mb-4">
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Nama Menu</label>
+                        <input type="text" name="name" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-teal-400 focus:bg-white" placeholder="Contoh: Header Menu" required>
+                    </div>
+                    <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-[#22C55E] to-[#14B8A6] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:scale-[1.02] transition-transform">Buat Menu</button>
+                </form>
+            {% endif %}
+        </div>
+
+        {% if active_menu %}
+            <!-- Tambah Item Menu -->
+            <div x-data="{ tab: 'custom' }" class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div class="border-b border-slate-200 bg-slate-50 px-6 py-4">
+                    <h3 class="font-bold text-slate-900">Tambahkan ke Menu</h3>
+                </div>
+                
+                <div class="flex border-b border-slate-200 text-sm font-medium">
+                    <button @click="tab = 'custom'" :class="tab === 'custom' ? 'text-teal-600 border-b-2 border-teal-600 bg-white' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'" class="flex-1 py-3 text-center transition-colors">Custom Link</button>
+                    <button @click="tab = 'pages'" :class="tab === 'pages' ? 'text-teal-600 border-b-2 border-teal-600 bg-white' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'" class="flex-1 py-3 text-center transition-colors">Pages</button>
+                    <button @click="tab = 'posts'" :class="tab === 'posts' ? 'text-teal-600 border-b-2 border-teal-600 bg-white' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'" class="flex-1 py-3 text-center transition-colors">Posts</button>
+                </div>
+
+                <div class="p-6">
+                    <!-- Custom Link Form -->
+                    <form x-show="tab === 'custom'" method="post" action="/admin/menus/items/store">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="menu_id" value="{{ active_menu.id }}">
+                        <input type="hidden" name="type" value="custom">
+                        <div class="mb-4">
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">URL</label>
+                            <input type="url" name="url" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-teal-400 focus:bg-white" placeholder="https://" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">Teks Tautan</label>
+                            <input type="text" name="label" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-teal-400 focus:bg-white" placeholder="Contoh: Beranda" required>
+                        </div>
+                        <button type="submit" class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition-colors">Tambahkan ke Menu</button>
+                    </form>
+
+                    <!-- Pages Form -->
+                    <form x-show="tab === 'pages'" style="display: none;" method="post" action="/admin/menus/items/store">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="menu_id" value="{{ active_menu.id }}">
+                        <input type="hidden" name="type" value="page">
+                        <div class="mb-4 max-h-48 overflow-y-auto space-y-2 rounded-xl border border-slate-200 p-3 bg-slate-50">
+                            {% for page in pages %}
+                                <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                                    <input type="radio" name="linked_post_id" value="{{ page.id }}" class="text-teal-600 focus:ring-teal-600" required>
+                                    <span>{{ page.title }}</span>
+                                </label>
+                            {% else %}
+                                <p class="text-xs text-slate-500 text-center">Belum ada halaman.</p>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-4">
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">Teks Tautan (Opsional)</label>
+                            <input type="text" name="label" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-teal-400 focus:bg-white" placeholder="Biarkan kosong untuk nama asli" required>
+                        </div>
+                        <button type="submit" class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition-colors">Tambahkan ke Menu</button>
+                    </form>
+
+                    <!-- Posts Form -->
+                    <form x-show="tab === 'posts'" style="display: none;" method="post" action="/admin/menus/items/store">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="menu_id" value="{{ active_menu.id }}">
+                        <input type="hidden" name="type" value="post">
+                        <div class="mb-4 max-h-48 overflow-y-auto space-y-2 rounded-xl border border-slate-200 p-3 bg-slate-50">
+                            {% for post in posts %}
+                                <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                                    <input type="radio" name="linked_post_id" value="{{ post.id }}" class="text-teal-600 focus:ring-teal-600" required>
+                                    <span>{{ post.title }}</span>
+                                </label>
+                            {% else %}
+                                <p class="text-xs text-slate-500 text-center">Belum ada artikel.</p>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-4">
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">Teks Tautan (Opsional)</label>
+                            <input type="text" name="label" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-teal-400 focus:bg-white" placeholder="Biarkan kosong untuk nama asli" required>
+                        </div>
+                        <button type="submit" class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition-colors">Tambahkan ke Menu</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Content: Struktur Menu -->
+    <div class="lg:col-span-8">
+        {% if active_menu %}
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-6 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">{{ active_menu.name }}</h2>
+                        <p class="text-sm text-slate-500">Geser dan lepas (drag-and-drop) item untuk mengatur urutannya.</p>
+                    </div>
+                    <form method="post" action="/admin/menus/{{ active_menu.id }}/delete" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu ini?');">
+                        {{ csrf_field() }}
+                        <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">Hapus Menu</button>
+                    </form>
+                </div>
+
+                <div class="mb-6">
+                    <ul id="menu-items-list" class="space-y-3 min-h-[100px] rounded-xl border-2 border-dashed border-slate-200 p-4 bg-slate-50">
+                        {% for item in menu_items %}
+                            <li data-id="{{ item.id }}" class="group flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm cursor-move hover:border-teal-300">
+                                <div class="flex items-center gap-3">
+                                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                                    <div>
+                                        <span class="font-semibold text-slate-900">{{ item.label }}</span>
+                                        <span class="ml-2 rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{{ item.type }}</span>
+                                        {% if item.url %}
+                                            <span class="block text-xs text-slate-400 mt-1">{{ item.url }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <form method="post" action="/admin/menus/items/{{ item.id }}/delete" class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="menu_id" value="{{ active_menu.id }}">
+                                    <button type="submit" class="text-red-500 hover:text-red-700" title="Hapus Item">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="text-center text-sm text-slate-500 py-4" id="empty-state">Belum ada item di menu ini.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                {% if menu_items|length > 0 %}
+                    <form method="post" action="/admin/menus/items/order" id="save-order-form">
+                        {{ csrf_field() }}
+                        <input type="hidden" name="menu_id" value="{{ active_menu.id }}">
+                        <input type="hidden" name="order" id="order-input" value="">
+                        <button type="button" onclick="saveOrder()" class="rounded-xl bg-gradient-to-r from-[#22C55E] to-[#14B8A6] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:scale-[1.02] transition-transform">Simpan Urutan Menu</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="flex h-full min-h-[400px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-slate-500">
+                <svg class="mb-4 h-12 w-12 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                <p>Silakan pilih atau buat menu untuk mulai mengelola.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if active_menu %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var el = document.getElementById('menu-items-list');
+        if (el) {
+            Sortable.create(el, {
+                animation: 150,
+                ghostClass: 'opacity-50',
+                onStart: function() {
+                    var empty = document.getElementById('empty-state');
+                    if (empty) empty.style.display = 'none';
+                }
+            });
+        }
+    });
+
+    function saveOrder() {
+        var items = document.querySelectorAll('#menu-items-list li[data-id]');
+        var order = [];
+        items.forEach(function(item, index) {
+            order.push({
+                id: item.getAttribute('data-id'),
+                sort: index
+            });
+        });
+        
+        document.getElementById('order-input').value = JSON.stringify(order);
+        document.getElementById('save-order-form').submit();
+    }
+</script>
+{% endif %}
+{% endblock %}

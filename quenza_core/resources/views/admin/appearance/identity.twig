@@ -1,0 +1,110 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900">{{ page_title }}</h1>
+        <p class="mt-1 text-sm text-slate-500">Sesuaikan identitas, logo, dan warna utama situs Anda.</p>
+    </div>
+</div>
+
+{% if status_message %}
+    <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+        {{ status_message }}
+    </div>
+{% endif %}
+{% if error_message %}
+    <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+        {{ error_message }}
+    </div>
+{% endif %}
+
+<form method="post" action="/admin/identity/update" enctype="multipart/form-data">
+    {{ csrf_field() }}
+    
+    <div class="grid gap-6 lg:grid-cols-2">
+        <!-- Pengaturan Identitas Dasar -->
+        <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+            <h3 class="mb-5 text-sm font-bold uppercase tracking-widest text-slate-400">Identitas Visual</h3>
+            
+            <div class="space-y-6">
+                <!-- Logo -->
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-slate-700">Logo Situs</label>
+                    <div class="flex items-start gap-4">
+                        {% if site_logo %}
+                            <div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                                <img src="{{ site_logo }}" alt="Site Logo" class="h-full w-full object-contain p-2">
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow">
+                            <input type="file" name="site_logo" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:rounded-xl file:border-0 file:bg-teal-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-teal-700 hover:file:bg-teal-100">
+                            <p class="mt-2 text-xs text-slate-500">Format yang disarankan: PNG atau SVG dengan background transparan.</p>
+                            {% if site_logo %}
+                                <label class="mt-2 flex items-center gap-2 text-xs text-red-600">
+                                    <input type="checkbox" name="delete_logo" value="1" class="rounded text-red-600 focus:ring-red-600">
+                                    Hapus logo saat ini
+                                </label>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- Favicon -->
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-slate-700">Favicon (Ikon Tab Browser)</label>
+                    <div class="flex items-start gap-4">
+                        {% if site_favicon %}
+                            <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
+                                <img src="{{ site_favicon }}" alt="Site Favicon" class="h-8 w-8 object-contain">
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow">
+                            <input type="file" name="site_favicon" accept=".ico,.png" class="block w-full text-sm text-slate-500 file:mr-4 file:rounded-xl file:border-0 file:bg-teal-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-teal-700 hover:file:bg-teal-100">
+                            <p class="mt-2 text-xs text-slate-500">Ikon kotak (512x512) yang muncul di tab browser pengguna.</p>
+                            {% if site_favicon %}
+                                <label class="mt-2 flex items-center gap-2 text-xs text-red-600">
+                                    <input type="checkbox" name="delete_favicon" value="1" class="rounded text-red-600 focus:ring-red-600">
+                                    Hapus favicon saat ini
+                                </label>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pengaturan Tampilan Khusus -->
+        <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+            <h3 class="mb-5 text-sm font-bold uppercase tracking-widest text-slate-400">Pengaturan Tampilan</h3>
+            
+            <div class="space-y-6">
+                <!-- Warna Utama -->
+                <div>
+                    <label for="primary_color" class="mb-2 block text-sm font-semibold text-slate-700">Warna Utama (Primary Color)</label>
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="primary_color" name="primary_color" value="{{ primary_color }}" class="h-10 w-14 cursor-pointer rounded border border-slate-200 p-0.5">
+                        <input type="text" value="{{ primary_color }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none font-mono text-slate-600" disabled>
+                    </div>
+                    <p class="mt-2 text-xs text-slate-500">Akan diterapkan pada tombol dan tautan di tema (jika tema mendukung).</p>
+                </div>
+
+                <!-- Footer Copyright -->
+                <div>
+                    <label for="footer_copyright" class="mb-2 block text-sm font-semibold text-slate-700">Teks Footer (Copyright)</label>
+                    <textarea id="footer_copyright" name="footer_copyright" rows="3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-teal-400 focus:bg-white">{{ footer_copyright }}</textarea>
+                    <p class="mt-2 text-xs text-slate-500">Teks hak cipta yang muncul di bagian paling bawah website. Mendukung tag HTML dasar seperti &lt;a&gt; atau &lt;strong&gt;.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 flex justify-end">
+        <button type="submit" class="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#22C55E] to-[#14B8A6] px-8 py-3 text-sm font-semibold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)] hover:scale-[1.02] transition-transform">
+            Simpan Perubahan
+        </button>
+    </div>
+</form>
+{% endblock %}

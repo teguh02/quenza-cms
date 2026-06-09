@@ -31,6 +31,8 @@ final class ManifestValidator
         $slug = $this->validateSlug((string) ($manifest['slug'] ?? ''));
         $name = trim((string) ($manifest['name'] ?? ''));
         $version = trim((string) ($manifest['version'] ?? '0.0.0'));
+        $description = isset($manifest['description']) ? trim((string) $manifest['description']) : null;
+        $author = isset($manifest['author']) ? trim((string) $manifest['author']) : null;
         $namespace = $this->validateNamespace((string) ($manifest['namespace'] ?? ''));
         $paths = is_array($manifest['paths'] ?? null) ? $manifest['paths'] : [];
 
@@ -47,6 +49,8 @@ final class ManifestValidator
             $slug,
             $name,
             $version,
+            $description,
+            $author,
             $namespace,
             $basePath,
             $sourcePath,

@@ -78,9 +78,25 @@ return static function (Router $router): void {
     $router->get('/admin/settings', [SettingController::class, 'index'], [AuthMiddleware::class]);
     $router->post('/admin/settings', [SettingController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
-    // Admin Extensions
+    // Admin Extensions / Appearance
     $router->get('/admin/plugins', [ExtensionController::class, 'plugins'], [AuthMiddleware::class]);
-    $router->get('/admin/themes', [ExtensionController::class, 'themes'], [AuthMiddleware::class]);
+    $router->get('/admin/appearance', [ExtensionController::class, 'themes'], [AuthMiddleware::class]);
+    $router->post('/admin/appearance/activate', [ExtensionController::class, 'activateTheme'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/appearance/upload', [ExtensionController::class, 'uploadTheme'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/appearance/{slug}/delete', [ExtensionController::class, 'deleteTheme'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/content/themes/{slug}/screenshot', [ExtensionController::class, 'themeScreenshot']);
+
+    // Admin Menus
+    $router->get('/admin/menus', [\Quenza\Core\Controller\Admin\MenuController::class, 'index'], [AuthMiddleware::class]);
+    $router->post('/admin/menus/store', [\Quenza\Core\Controller\Admin\MenuController::class, 'storeMenu'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/menus/items/store', [\Quenza\Core\Controller\Admin\MenuController::class, 'storeItem'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/menus/items/order', [\Quenza\Core\Controller\Admin\MenuController::class, 'updateOrder'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/menus/items/{id}/delete', [\Quenza\Core\Controller\Admin\MenuController::class, 'deleteItem'], [AuthMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/admin/menus/{id}/delete', [\Quenza\Core\Controller\Admin\MenuController::class, 'deleteMenu'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+    // Admin Identity
+    $router->get('/admin/identity', [\Quenza\Core\Controller\Admin\IdentityController::class, 'index'], [AuthMiddleware::class]);
+    $router->post('/admin/identity/update', [\Quenza\Core\Controller\Admin\IdentityController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
     // Admin Comments
     $router->get('/admin/comments', [CommentController::class, 'index'], [AuthMiddleware::class]);

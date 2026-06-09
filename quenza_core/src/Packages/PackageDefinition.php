@@ -10,6 +10,8 @@ readonly class PackageDefinition
         public string $slug,
         public string $name,
         public string $version,
+        public ?string $description,
+        public ?string $author,
         public string $namespace,
         public string $basePath,
         public string $sourcePath,
