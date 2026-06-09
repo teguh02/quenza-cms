@@ -19,7 +19,7 @@ final class PackageDiscoverer
      */
     public function discoverPlugins(): array
     {
-        return $this->discoverPackages(PackageScope::Plugin, 'qz_plugins', 'manifest.json');
+        return $this->discoverPackages(PackageScope::Plugin, 'qz_content/qz_plugins', 'manifest.json');
     }
 
     /**
@@ -27,7 +27,7 @@ final class PackageDiscoverer
      */
     public function discoverThemes(bool $activeOnly = true): array
     {
-        $themes = $this->discoverPackages(PackageScope::Theme, 'qz_themes', 'theme.json');
+        $themes = $this->discoverPackages(PackageScope::Theme, 'qz_content/qz_themes', 'theme.json');
 
         if (!$activeOnly) {
             return $themes;

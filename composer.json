@@ -12,8 +12,8 @@
     "autoload": {
         "psr-4": {
             "Quenza\\Core\\": "quenza_core/src/",
-            "Database\\Migrations\\": "database/migrations/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Migrations\\": "quenza_core/database/migrations/",
+            "Database\\Seeders\\": "quenza_core/database/seeders/"
         },
         "files": [
             "quenza_core/src/helpers.php"

@@ -50,13 +50,13 @@ Env::load(
 
 $autoloader = new Autoloader();
 $autoloader->addNamespace('Quenza\\Core\\', $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'src');
-$autoloader->addNamespace('Database\\Migrations\\', $basePath . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'migrations');
-$autoloader->addNamespace('Database\\Seeders\\', $basePath . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'seeders');
+$autoloader->addNamespace('Database\\Migrations\\', $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'migrations');
+$autoloader->addNamespace('Database\\Seeders\\', $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'seeders');
 $autoloader->register();
 
 $config = [
-    'app' => require $basePath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.php',
-    'database' => require $basePath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php',
+    'app' => require $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.php',
+    'database' => require $basePath . DIRECTORY_SEPARATOR . 'quenza_core' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php',
 ];
 
 $app = new Application($basePath, $autoloader, $config);

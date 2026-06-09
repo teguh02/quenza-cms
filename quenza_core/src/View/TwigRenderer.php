@@ -24,7 +24,7 @@ final class TwigRenderer
         private readonly AuthManager $auth,
         private readonly Translator $translator,
     ) {
-        $loader = new FilesystemLoader($this->app->basePath('resources/views'));
+        $loader = new FilesystemLoader($this->app->basePath('quenza_core/resources/views'));
 
         $this->twig = new Environment($loader, [
             'cache' => false,

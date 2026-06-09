@@ -2,7 +2,6 @@
 declare(strict_types=1);
 
 use Quenza\Core\Controller\Admin\CategoryController;
-use Quenza\Core\Controller\Admin\CategoryController;
 use Quenza\Core\Controller\Admin\CommentController;
 use Quenza\Core\Controller\Admin\DashboardController;
 use Quenza\Core\Controller\Admin\ExtensionController;

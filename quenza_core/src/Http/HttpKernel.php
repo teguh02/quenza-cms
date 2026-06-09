@@ -52,7 +52,7 @@ final class HttpKernel
             return;
         }
 
-        $registerRoutes = require $this->app->basePath('routes/web.php');
+        $registerRoutes = require $this->app->basePath('quenza_core/routes/web.php');
         $registerRoutes($this->router);
 
         $this->routesRegistered = true;

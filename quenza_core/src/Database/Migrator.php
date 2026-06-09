@@ -149,7 +149,7 @@ final class Migrator
                         PackageScope::Core,
                         'core',
                         'Database\\Migrations\\',
-                        $this->app->basePath('database/migrations'),
+                        $this->app->basePath('quenza_core/database/migrations'),
                     ),
                 ];
             }
