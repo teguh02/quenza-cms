@@ -93,6 +93,11 @@ final class SessionManager
         $_SESSION[self::FLASH_KEY] = $flash;
     }
 
+    public function getFlash(string $key, mixed $default = null): mixed
+    {
+        return $this->get($key, $default);
+    }
+
     /**
      * @param array<string, mixed> $input
      */
