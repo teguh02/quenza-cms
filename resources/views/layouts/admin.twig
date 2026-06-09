@@ -23,34 +23,34 @@
 </head>
 <body class="bg-slate-50 font-sans text-slate-900">
     <div class="min-h-screen bg-slate-50 p-4 md:p-6">
-        <aside class="fixed inset-y-4 left-4 hidden w-64 rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)] lg:block">
-            <div class="mb-8 flex items-center gap-3">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#22C55E] to-[#14B8A6] text-lg font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">Q</div>
-                <div>
-                    <p class="text-sm font-semibold text-slate-900">{{ app_name }}</p>
-                    <p class="text-xs text-slate-400">Quenza Control Center</p>
+        <aside class="fixed inset-y-4 left-4 hidden w-64 flex-col rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)] lg:flex">
+            <div class="mb-6 flex flex-shrink-0 items-center gap-3">
+                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#22C55E] to-[#14B8A6] text-lg font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">Q</div>
+                <div class="min-w-0">
+                    <p class="truncate text-sm font-semibold text-slate-900">{{ app_name }}</p>
+                    <p class="truncate text-xs text-slate-400">Quenza Control Center</p>
                 </div>
             </div>
 
-            <nav class="space-y-2 text-sm">
+            <nav class="flex-1 space-y-2 overflow-y-auto pr-2 -mr-2 text-sm scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
                 <a href="/admin" class="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-[#0EA5A4] to-[#84CC16] px-4 py-3 font-semibold text-white transition-all duration-300 ease-in-out">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">D</span>
-                    <span>{{ trans('common.dashboard') }}</span>
+                    <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20">D</span>
+                    <span class="truncate">{{ trans('common.dashboard') }}</span>
                 </a>
-                <span class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">P</span><span>Posts</span></span>
-                <span class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">M</span><span>Media</span></span>
-                <span class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">G</span><span>Pages</span></span>
-                <span class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">C</span><span>Comments</span></span>
-                <span class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">A</span><span>Appearance</span></span>
-                <span class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">L</span><span>Plugins</span></span>
-                <span class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">U</span><span>Users</span></span>
-                <span class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">S</span><span>Settings</span></span>
+                <a href="/admin/posts" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">P</span><span class="truncate">Posts</span></a>
+                <a href="/admin/media" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">M</span><span class="truncate">Media</span></a>
+                <a href="/admin/pages" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">G</span><span class="truncate">Pages</span></a>
+                <a href="/admin/comments" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">C</span><span class="truncate">Comments</span></a>
+                <a href="/admin/appearance" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">A</span><span class="truncate">Appearance</span></a>
+                <a href="/admin/plugins" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">L</span><span class="truncate">Plugins</span></a>
+                <a href="/admin/users" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">U</span><span class="truncate">Users</span></a>
+                <a href="/admin/settings" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">S</span><span class="truncate">Settings</span></a>
             </nav>
 
-            <div class="absolute inset-x-5 bottom-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div class="mt-4 flex-shrink-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Masuk Sebagai</p>
-                <p class="mt-2 text-sm font-semibold text-slate-900">{{ auth_user().full_name ?? 'Pengguna' }}</p>
-                <p class="text-xs text-slate-500">{{ auth_user().email ?? '-' }}</p>
+                <p class="mt-2 truncate text-sm font-semibold text-slate-900">{{ auth_user().full_name ?? 'Pengguna' }}</p>
+                <p class="truncate text-xs text-slate-500">{{ auth_user().email ?? '-' }}</p>
                 <form method="post" action="/logout" class="mt-4">
                     {{ csrf_field() }}
                     <button type="submit" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 ease-in-out hover:border-slate-300 hover:bg-slate-100">{{ trans('auth.logout') }}</button>
