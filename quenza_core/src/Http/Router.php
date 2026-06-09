@@ -60,7 +60,7 @@ final class Router
             $handler = $this->resolveHandler($route['handler'], $app);
 
             $core = function (Request $incomingRequest) use ($handler): Response {
-                return $this->normalizeResponse($handler($incomingRequest));
+                return $this->normalizeResponse($handler($incomingRequest, $incomingRequest->routeParameters()));
             };
 
             $pipeline = array_reduce(

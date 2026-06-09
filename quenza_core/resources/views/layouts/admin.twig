@@ -34,31 +34,31 @@
             </div>
 
             <nav class="flex-1 space-y-2 overflow-y-auto pr-2 -mr-2 text-sm scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-                <a href="/admin" class="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-[#0EA5A4] to-[#84CC16] px-4 py-3 font-semibold text-white transition-all duration-300 ease-in-out">
-                    <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20">D</span>
+                <a href="/admin" class="nav-link flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50">
+                    <span class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">D</span>
                     <span class="truncate">{{ trans('common.dashboard') }}</span>
                 </a>
-                <a href="/admin/posts" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">P</span><span class="truncate">Posts</span></a>
-                <a href="/admin/media" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">M</span><span class="truncate">Media</span></a>
-                <a href="/admin/pages" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">G</span><span class="truncate">Pages</span></a>
-                <a href="/admin/comments" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">C</span><span class="truncate">Comments</span></a>
+                <a href="/admin/posts" class="nav-link flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">P</span><span class="truncate">Posts</span></a>
+                <a href="/admin/media" class="nav-link flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">M</span><span class="truncate">Media</span></a>
+                <a href="/admin/pages" class="nav-link flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">G</span><span class="truncate">Pages</span></a>
+                <a href="/admin/comments" class="nav-link flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">C</span><span class="truncate">Comments</span></a>
                 <div x-data="{ open: window.location.pathname.startsWith('/admin/appearance') || window.location.pathname.startsWith('/admin/menus') || window.location.pathname.startsWith('/admin/identity') }" class="space-y-1">
-                    <button @click="open = !open" type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50">
+                    <button @click="open = !open" type="button" :class="open ? 'bg-gradient-to-r from-[#0EA5A4] to-[#84CC16] text-white font-semibold' : 'text-slate-500 hover:bg-slate-50'" class="nav-link flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 transition-all duration-300 ease-in-out">
                         <div class="flex items-center gap-3">
-                            <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DBEAFE] text-slate-700">A</span>
+                            <span :class="open ? 'bg-white/20 text-white' : 'bg-[#DBEAFE] text-slate-700'" class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl transition-colors duration-300">A</span>
                             <span class="truncate">Appearance</span>
                         </div>
-                        <svg :class="{'rotate-180': open}" class="h-4 w-4 transition-transform text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        <svg :class="{'rotate-180': open, 'text-white': open, 'text-slate-400': !open}" class="h-4 w-4 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
                     <div x-show="open" x-transition class="space-y-1 pl-[3.25rem] pr-2">
-                        <a href="/admin/appearance" class="block rounded-xl px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-teal-600 transition-colors">Themes</a>
-                        <a href="/admin/menus" class="block rounded-xl px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-teal-600 transition-colors">Menus</a>
-                        <a href="/admin/identity" class="block rounded-xl px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-teal-600 transition-colors">Site Identity</a>
+                        <a href="/admin/appearance" :class="window.location.pathname === '/admin/appearance' ? 'text-teal-600 font-semibold' : 'text-slate-500 hover:text-teal-600'" class="block rounded-xl px-4 py-2 text-sm hover:bg-slate-50 transition-colors">Themes</a>
+                        <a href="/admin/menus" :class="window.location.pathname === '/admin/menus' ? 'text-teal-600 font-semibold' : 'text-slate-500 hover:text-teal-600'" class="block rounded-xl px-4 py-2 text-sm hover:bg-slate-50 transition-colors">Menus</a>
+                        <a href="/admin/identity" :class="window.location.pathname === '/admin/identity' ? 'text-teal-600 font-semibold' : 'text-slate-500 hover:text-teal-600'" class="block rounded-xl px-4 py-2 text-sm hover:bg-slate-50 transition-colors">Site Identity</a>
                     </div>
                 </div>
-                <a href="/admin/plugins" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">L</span><span class="truncate">Plugins</span></a>
-                <a href="/admin/users" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">U</span><span class="truncate">Users</span></a>
-                <a href="/admin/settings" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">S</span><span class="truncate">Settings</span></a>
+                <a href="/admin/plugins" class="nav-link flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] text-slate-700">L</span><span class="truncate">Plugins</span></a>
+                <a href="/admin/users" class="nav-link flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#FEF3C7] text-slate-700">U</span><span class="truncate">Users</span></a>
+                <a href="/admin/settings" class="nav-link flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-500 transition-all duration-300 ease-in-out hover:bg-slate-50"><span class="nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-slate-700">S</span><span class="truncate">Settings</span></a>
             </nav>
 
             <div class="mt-4 flex-shrink-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -83,5 +83,24 @@
         </main>
     </div>
     {% block scripts %}{% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const path = window.location.pathname;
+            const links = document.querySelectorAll('a.nav-link');
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if ((path === '/admin' && href === '/admin') || (href !== '/admin' && path.startsWith(href))) {
+                    link.classList.remove('text-slate-500', 'hover:bg-slate-50');
+                    link.classList.add('bg-gradient-to-r', 'from-[#0EA5A4]', 'to-[#84CC16]', 'text-white', 'font-semibold');
+                    
+                    const icon = link.querySelector('.nav-icon');
+                    if (icon) {
+                        icon.className = 'nav-icon inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 transition-colors duration-300 text-white';
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Quenza\Core\Controller\Admin;
 
 use PDO;
-use Quenza\Core\Database\Connection;
+use Quenza\Core\Database\DatabaseManager;
 use Quenza\Core\Http\Request;
 use Quenza\Core\Http\Response;
 use Quenza\Core\Session\SessionManager;
@@ -14,14 +14,14 @@ final class MenuController
 {
     public function __construct(
         private readonly TwigRenderer $view,
-        private readonly Connection $db,
+        private readonly DatabaseManager $db,
         private readonly SessionManager $session,
     ) {
     }
 
     public function index(Request $request): Response
     {
-        $menus = $this->db->fetchAll('SELECT * FROM menus ORDER BY name ASC');
+        $menus = $this->db->select('SELECT * FROM menus ORDER BY name ASC');
         $activeMenuId = (int) $request->input('menu_id', 0);
         
         if ($activeMenuId === 0 && !empty($menus)) {
@@ -33,14 +33,14 @@ final class MenuController
         if ($activeMenuId > 0) {
             $activeMenu = current(array_filter($menus, fn($m) => (int)$m['id'] === $activeMenuId)) ?: null;
             if ($activeMenu) {
-                $menuItems = $this->db->fetchAll('SELECT * FROM menu_items WHERE menu_id = ? ORDER BY sort_order ASC', [$activeMenuId]);
+                $menuItems = $this->db->select('SELECT * FROM menu_items WHERE menu_id = ? ORDER BY sort_order ASC', [$activeMenuId]);
                 // Build tree
                 $menuItems = $this->buildTree($menuItems);
             }
         }
 
-        $pages = $this->db->fetchAll("SELECT id, title FROM posts WHERE type = 'page' AND status = 'published' ORDER BY title ASC");
-        $posts = $this->db->fetchAll("SELECT id, title FROM posts WHERE type = 'post' AND status = 'published' ORDER BY title ASC LIMIT 20");
+        $pages = $this->db->select("SELECT id, title FROM posts WHERE type = 'page' AND status = 'published' ORDER BY title ASC");
+        $posts = $this->db->select("SELECT id, title FROM posts WHERE type = 'post' AND status = 'published' ORDER BY title ASC LIMIT 20");
 
         return Response::html($this->view->render('admin/appearance/menus.twig', [
             'page_title' => 'Menus',
@@ -62,8 +62,8 @@ final class MenuController
             return Response::redirect('/admin/menus');
         }
 
-        $this->db->execute('INSERT INTO menus (name, created_at, updated_at) VALUES (?, NOW(), NOW())', [$name]);
-        $menuId = $this->db->pdo()->lastInsertId();
+        $this->db->statement('INSERT INTO menus (name, created_at, updated_at) VALUES (?, NOW(), NOW())', [$name]);
+        $menuId = $this->db->connection()->pdo()->lastInsertId();
 
         $this->session->flash('status', 'Menu berhasil dibuat.');
         return Response::redirect('/admin/menus?menu_id=' . $menuId);
@@ -88,11 +88,11 @@ final class MenuController
         }
 
         // Get max sort_order
-        $stmt = $this->db->pdo()->prepare('SELECT MAX(sort_order) FROM menu_items WHERE menu_id = ?');
+        $stmt = $this->db->connection()->pdo()->prepare('SELECT MAX(sort_order) FROM menu_items WHERE menu_id = ?');
         $stmt->execute([$menuId]);
         $maxSort = (int) $stmt->fetchColumn();
 
-        $this->db->execute(
+        $this->db->statement(
             'INSERT INTO menu_items (menu_id, type, label, url, linked_post_id, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())',
             [$menuId, $type, $label, $url ?: null, $linkedPostId > 0 ? $linkedPostId : null, $maxSort + 1]
         );
@@ -109,18 +109,18 @@ final class MenuController
         if ($menuId > 0 && $order) {
             $items = json_decode((string) $order, true);
             if (is_array($items)) {
-                $this->db->pdo()->beginTransaction();
+                $this->db->connection()->pdo()->beginTransaction();
                 try {
                     foreach ($items as $index => $item) {
                         $id = (int) ($item['id'] ?? 0);
                         if ($id > 0) {
-                            $this->db->execute('UPDATE menu_items SET sort_order = ? WHERE id = ? AND menu_id = ?', [$index, $id, $menuId]);
+                            $this->db->statement('UPDATE menu_items SET sort_order = ? WHERE id = ? AND menu_id = ?', [$index, $id, $menuId]);
                         }
                     }
-                    $this->db->pdo()->commit();
+                    $this->db->connection()->pdo()->commit();
                     $this->session->flash('status', 'Urutan menu berhasil disimpan.');
                 } catch (\Throwable $e) {
-                    $this->db->pdo()->rollBack();
+                    $this->db->connection()->pdo()->rollBack();
                     $this->session->flash('error', 'Gagal menyimpan urutan menu.');
                 }
             }
@@ -135,7 +135,7 @@ final class MenuController
         $menuId = (int) $request->input('menu_id', 0);
         
         if ($id > 0) {
-            $this->db->execute('DELETE FROM menu_items WHERE id = ?', [$id]);
+            $this->db->statement('DELETE FROM menu_items WHERE id = ?', [$id]);
             $this->session->flash('status', 'Item menu berhasil dihapus.');
         }
 
@@ -146,7 +146,7 @@ final class MenuController
     {
         $id = (int) ($vars['id'] ?? 0);
         if ($id > 0) {
-            $this->db->execute('DELETE FROM menus WHERE id = ?', [$id]);
+            $this->db->statement('DELETE FROM menus WHERE id = ?', [$id]);
             $this->session->flash('status', 'Menu berhasil dihapus.');
         }
         return Response::redirect('/admin/menus');
