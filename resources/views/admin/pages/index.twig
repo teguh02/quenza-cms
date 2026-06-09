@@ -1,0 +1,71 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+<div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900">{{ page_title }}</h1>
+        <p class="mt-1 text-sm text-slate-500">Kelola semua halaman statis blog Anda dari sini.</p>
+    </div>
+    <div>
+        <a href="/admin/pages/create" class="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-[#22C55E] to-[#14B8A6] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600">
+            + Tambah Halaman
+        </a>
+    </div>
+</div>
+
+<div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50/50">
+                <tr>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Judul</th>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Penulis</th>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Tanggal</th>
+                    <th scope="col" class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">
+                {% for page in pages %}
+                    <tr class="transition-colors hover:bg-slate-50/50">
+                        <td class="whitespace-nowrap px-6 py-4">
+                            <div class="text-sm font-medium text-slate-900">{{ page.title }}</div>
+                            <div class="text-xs text-slate-400">/{{ page.slug }}</div>
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4">
+                            <div class="text-sm text-slate-600">{{ page.author_name }}</div>
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4">
+                            {% if page.status == 'published' %}
+                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">Published</span>
+                            {% elseif page.status == 'draft' %}
+                                <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">Draft</span>
+                            {% else %}
+                                <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">{{ page.status|capitalize }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
+                            {{ page.created_at|date("d M Y") }}
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                            <div class="flex items-center justify-end gap-3">
+                                <a href="/admin/pages/{{ page.id }}/edit" class="rounded-xl bg-slate-100 px-3 py-1.5 text-teal-600 transition-colors hover:bg-teal-50 hover:text-teal-700">Edit</a>
+                                <form method="post" action="/admin/pages/{{ page.id }}/delete" onsubmit="return confirm('Apakah Anda yakin ingin menghapus halaman ini?');" class="inline-block">
+                                    {{ csrf_field() }}
+                                    <button type="submit" class="rounded-xl bg-slate-100 px-3 py-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700">Hapus</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">
+                            Belum ada halaman. <a href="/admin/pages/create" class="text-teal-600 font-semibold hover:underline">Buat halaman pertama Anda</a>.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

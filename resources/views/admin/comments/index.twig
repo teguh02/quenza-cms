@@ -1,0 +1,96 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+<div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900">{{ page_title }}</h1>
+        <p class="mt-1 text-sm text-slate-500">Moderasi komentar yang masuk dari pembaca.</p>
+    </div>
+</div>
+
+{% if status_message %}
+    <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+        {{ status_message }}
+    </div>
+{% endif %}
+
+<div class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50/50">
+                <tr>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Penulis</th>
+                    <th scope="col" class="w-1/2 px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Komentar</th>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Artikel</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">
+                {% for comment in comments %}
+                    <tr class="transition-colors hover:bg-slate-50/50 {% if comment.status == 'spam' %}bg-red-50/30{% elseif comment.status == 'pending' %}bg-amber-50/30{% endif %}">
+                        <td class="whitespace-nowrap px-6 py-4 align-top">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 font-bold uppercase">
+                                    {{ comment.author_name[:1] }}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-bold text-slate-900">{{ comment.author_name }}</div>
+                                    <div class="text-xs text-slate-500">{{ comment.author_email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <div class="text-xs text-slate-400 mb-1">
+                                Dikirim pada {{ comment.created_at|date("d M Y H:i") }}
+                                {% if comment.status == 'pending' %}
+                                    <span class="ml-2 inline-flex items-center rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800">Menunggu</span>
+                                {% elseif comment.status == 'spam' %}
+                                    <span class="ml-2 inline-flex items-center rounded-md bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase text-red-800">Spam</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-sm text-slate-700">{{ comment.content }}</div>
+                            
+                            <!-- Aksi (WordPress style) -->
+                            <div class="mt-3 flex gap-3 text-xs font-semibold">
+                                {% if comment.status == 'pending' %}
+                                    <form method="post" action="/admin/comments/{{ comment.id }}/approve" class="inline">
+                                        {{ csrf_field() }}
+                                        <button type="submit" class="text-emerald-600 hover:text-emerald-800 hover:underline">Setujui</button>
+                                    </form>
+                                {% elseif comment.status == 'approved' %}
+                                    <form method="post" action="/admin/comments/{{ comment.id }}/unapprove" class="inline">
+                                        {{ csrf_field() }}
+                                        <button type="submit" class="text-amber-600 hover:text-amber-800 hover:underline">Tarik Persetujuan</button>
+                                    </form>
+                                {% endif %}
+                                
+                                {% if comment.status != 'spam' %}
+                                    <span class="text-slate-300">|</span>
+                                    <form method="post" action="/admin/comments/{{ comment.id }}/spam" class="inline">
+                                        {{ csrf_field() }}
+                                        <button type="submit" class="text-orange-600 hover:text-orange-800 hover:underline">Tandai Spam</button>
+                                    </form>
+                                {% endif %}
+
+                                <span class="text-slate-300">|</span>
+                                <form method="post" action="/admin/comments/{{ comment.id }}/delete" onsubmit="return confirm('Hapus komentar secara permanen?');" class="inline">
+                                    {{ csrf_field() }}
+                                    <button type="submit" class="text-red-600 hover:text-red-800 hover:underline">Hapus Permanen</button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 align-top text-sm font-medium text-slate-800">
+                            {{ comment.post_title }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="px-6 py-10 text-center text-sm text-slate-500">
+                            Belum ada komentar sama sekali.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
